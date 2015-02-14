@@ -2,6 +2,7 @@ var gui = require('nw.gui');
 var mb = new gui.Menu({type:"menubar"});
 mb.createMacBuiltin("nuxeo-uploader");
 gui.Window.get().menu = mb;
+var nuxeo = require('nuxeo');
 
 var nuxeoConfig = function nuxeoConfig() {
   function getOrSet(key, text) {
@@ -27,8 +28,11 @@ $(function() {
 
   $('#select_nuxeo').click(function () {
     $('#nuxeo').css('opacity', '1');
+
+    var client = new nuxeo.Client(nuxeoConfig());
+
     $('#nuxeo .panel-body').html(
-      JSON.stringify(nuxeoConfig())
+      JSON.stringify(client)
     );
   });
 
