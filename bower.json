@@ -1,0 +1,15 @@
+{
+  "name": "nuxeo_uploader",
+  "version": "0.0.1",
+  "license": "BSD",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-progressbar": "~0.8.4"
+  }
+}
