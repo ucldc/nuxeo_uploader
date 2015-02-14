@@ -40,6 +40,7 @@ $(function() {
     $('#progress').css('opacity', '1');
     $('#pause').show();
     $( this ).hide();
+    new Notification("Upload Failed!  Not implimented yet");
   });
 
   // http://stackoverflow.com/a/12102992
