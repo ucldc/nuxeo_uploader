@@ -4,23 +4,17 @@ mb.createMacBuiltin("nuxeo-uploader");
 gui.Window.get().menu = mb;
 var nuxeo = require('nuxeo');
 
-var nuxeoConfig = function nuxeoConfig() {
-  function getOrSet(key, text) {
-    var val;
-    if (!localStorage[key]) {
-      localStorage[key] = prompt(text || key);
-    }
-    return localStorage[key];
-  }
-  return { auth: {
-    method: 'proxy',
-    username: getOrSet('username'),
-    token: getOrSet('token')
-  }}
-}
+var NuxeoUploadApp = new Backbone.Marionette.Application();
 
-// document ready
-$(function() {
+NuxeoUploadApp.module("Config", {
+  define: function(NuxeoUploadApp, Config, Backbone, Marionette, $, _, nuxeo){
+    console.log(NuxeoUploadApp);
+    console.log(nuxeo);
+
+
+
+  
+
   var File = Backbone.Model.extend({}); 
 
   var LocalList = Backbone.Collection.extend({
@@ -49,9 +43,6 @@ $(function() {
 
       this.collection = new LocalList();
       this.collection.bind('add', this.appendItem);
-      this.collection.bind('add', function(e) {
-        console.log(e);
-      });
 
       this.counter = 0;
       // this.render();
@@ -83,17 +74,13 @@ $(function() {
   });
   input.on('change', function () {
     listView.addFiles(this.files);
+    this.disabled = true;
   });
   
   // set up the page
   $('#select_nuxeo').click(function () {
-    $('#nuxeo').css('opacity', '1');
 
-    var client = new nuxeo.Client(nuxeoConfig());
 
-    $('#nuxeo .panel-body').html(
-      JSON.stringify(client)
-    );
   });
 
   $('#upload').click(function () {
@@ -103,4 +90,7 @@ $(function() {
     new Notification("Upload Failed!  Not implimented yet");
   });
 
-});
+
+  }
+}, nuxeo);
+NuxeoUploadApp.start();
