@@ -1,7 +1,19 @@
 'use strict';
 var nuxeo = require('nuxeo');
+var temp = require('temp');
+var rest = require('nuxeo/node_modules/restler');
+var fs = require('fs');
 var pfa = require("bluebird").promisifyAll;
 nuxeo = pfa(nuxeo);
+
+module.exports.type = function type(file, patterns){
+  patterns = patterns || {
+    '': 'CustomFile',
+    'jpg': 'SampleCustomPicture'
+  };
+  var ext = path.extname(file);
+  return patterns[ext] || patterns[''];
+}
 
 module.exports.nx_status = function nx_status(client, callback){
   client.connectAsync().then(function(){
@@ -9,26 +21,13 @@ module.exports.nx_status = function nx_status(client, callback){
   });
 }
 
-module.exports.upload = function upload(client, params, callback) {
-  /* upload(filename, folder, callback)
-     @filename = local path to a file to upload
-     @folder   = nuxeo document id for Folderish place in nuxeo
-     returns: @callback
-
-   Needs to:
-     - match up file extension to nuxeo object type (?)
-     - checksum file?
-     - upload file, note batch id
-     - create a nuxeo document, attach batch to it
-   */
-
+module.exports.writable = function writable(client, callback){
   // find folders the user can write to
   // "Since Nuxeo 6.0-HF06 or Nuxeo 7.2 you can use ecm:acl"
   // http://doc.nuxeo.com/display/NXDOC/NXQL
   var nxql = 'select * from Document' +
-             //' WHERE ecm:acl/*1/permission' +
-             //' IN ("ReadWrite")';
-             ' limit 1';
+             ' WHERE ecm:acl/*1/permission' +
+             ' IN ("ReadWrite")';
 
   var request = pfa(client.request('/').schema(['dublincore', 'file'])
     .path('@search')
@@ -40,25 +39,36 @@ module.exports.upload = function upload(client, params, callback) {
   request.executeAsync().then(function(data){
     console.log(data[0].errorMessage, data[0].entries);
   });
+}
 
-  pfa(client.operation('Document.Create')
-    .params({
-      type: 'Folder',
-      name: 'My Folder',
-    })
-    .input('doc:/')
-  ).executeAsync().then(function(data){
-      console.log(data[0]);
+module.exports.upload = function upload(client, params, callback) {
+  var stats = fs.statSync(params.file);
+  var file = rest.file(params.file, null, stats.size, null, null);
+
+  var uploader = client.operation('FileManager.Import')
+    .context({ currentDocument: params.folder })
+    .input(file)
+    .uploader();
+
+  uploader.uploadFile(file, function(fileIndex, fileObj, timediff) {
+    console.log(fileIndex, fileObj);
   });
 
-  return callback(null);
-};
+  uploader.execute(function(error, data) {
+      if (error) {
+        throw error;
+      }
+      console.log(data);
+  });
+
+}
+
+
 
 if(require.main === module) {
   var client = new nuxeo.Client();
-  module.exports.nx_status(client);
-  /* module.exports.upload(client,
+  module.exports.upload(client,
                         { file: process.argv[2],
-                        folder: process.argv[3] },
-                        function(){}); */
+                          folder: '/default-domain/workspaces/test' },
+                        function(){});
 } 
