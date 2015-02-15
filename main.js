@@ -63,6 +63,7 @@ NuxeoUploadApp.module("Config", {
     });
     var listView = new ListView();
 
+    // detect when user has selected files
     // http://stackoverflow.com/a/12102992
     input = $('input');
     input.click(function () {
@@ -75,14 +76,9 @@ NuxeoUploadApp.module("Config", {
   
     // set up the page
     $('#select_nuxeo').click(function () {
-
-
     });
 
     $('#upload').click(function () {
-      $('#progress').css('opacity', '1');
-      $('#pause').show();
-      $( this ).hide();
       new Notification("Upload Failed!  Not implimented yet");
     });
 
