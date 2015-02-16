@@ -4,15 +4,21 @@ var temp = require('temp');
 var rest = require('nuxeo/node_modules/restler');
 var fs = require('fs');
 var pfa = require("bluebird").promisifyAll;
+var path = require('path');
 nuxeo = pfa(nuxeo);
 
 module.exports.type = function type(file, patterns){
-  patterns = patterns || {
-    '': 'CustomFile',
-    'jpg': 'SampleCustomPicture'
-  };
   var ext = path.extname(file);
-  return patterns[ext] || patterns[''];
+  switch(true) {
+    case /jpe?g|tif?|gif|png|svg/i.test(file):
+      return 'Picture';
+    case /mov|mp4/i.test(file):
+      return 'Video';
+    case /wav|mp3/i.test(file):
+      return 'Audio';
+    default:
+      return 'File';
+  }
 }
 
 module.exports.nx_status = function nx_status(client, callback){
@@ -47,28 +53,26 @@ module.exports.upload = function upload(client, params, callback) {
 
   var uploader = client.operation('FileManager.Import')
     .context({ currentDocument: params.folder })
-    .input(file)
-    .uploader();
+    .uploader.uploadFile();
 
-  uploader.uploadFile(file, function(fileIndex, fileObj, timediff) {
-    console.log(fileIndex, fileObj);
-  });
-
+  console.log('x1 about to exec');
   uploader.execute(function(error, data) {
-      if (error) {
-        throw error;
-      }
-      console.log(data);
+    console.log('x2 executed');
+    if (error) {
+      throw error;
+    }
+    console.log(data);
+    console.log('x2--');
   });
-
 }
 
 
 
 if(require.main === module) {
   var client = new nuxeo.Client();
+  console.log(module.exports.type(process.argv[2]));
   module.exports.upload(client,
                         { file: process.argv[2],
                           folder: '/default-domain/workspaces/test' },
-                        function(){});
+                        function(){}); 
 } 
