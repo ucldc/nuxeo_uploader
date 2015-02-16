@@ -2,7 +2,9 @@ var gui = require('nw.gui');
 var mb = new gui.Menu({type:"menubar"});
 mb.createMacBuiltin("nuxeo-uploader");
 gui.Window.get().menu = mb;
-var nuxeo = require('nuxeo');
+var Promise = require("bluebird");
+var nuxeo = Promise.promisifyAll(require('nuxeo'));
+var nuxeoupload = require('./nuxeoupload');
 
 var NuxeoUploadApp = new Backbone.Marionette.Application();
 
@@ -82,6 +84,10 @@ NuxeoUploadApp.module("Config", {
       new Notification("Upload Failed!  Not implimented yet");
     });
 
+    client = new nuxeo.Client();
+    nuxeoupload.nx_status(client, function(x) {
+      $('#nx_status').html(x.toString());
+    });
   }
 }, nuxeo);
 NuxeoUploadApp.start();

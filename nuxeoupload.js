@@ -10,9 +10,11 @@ nuxeo = pfa(nuxeo);
 /*
  * get nuxeo status
  */
-module.exports.nx_status = function nx_status(client, callback){
+module.exports.nx_status = function nx_status(client, cb){
   client.connectAsync().then(function(){
-    console.log("looks like nuxeo is configured and up");
+    return cb(true);
+  }, function(){
+    return cb(false);
   });
 }
 
@@ -58,7 +60,7 @@ module.exports.upload = function upload(client, params, callback) {
     }
     if (!data.entries.length) {
       console.log('hey;');
-      return new Error('Upload/execute returned w/o errors, but `entries` is empty');
+      throw new Error('Upload/execute returned w/o errors, but `entries` is empty');
     }
     console.log(data.entries[0].uid, data.entries[0].path);
   });
@@ -69,8 +71,9 @@ module.exports.upload = function upload(client, params, callback) {
  */
 if(require.main === module) {
   var client = new nuxeo.Client();
-  var status = module.exports.upload(client,
+  module.exports.nx_status(client, function(x) { console.log(x) });
+  /* var status = module.exports.upload(client,
                         { file: process.argv[2],
                           folder: '/default-domain/workspaces/test' },
-                        function(s){console.log(s);}); 
+                        function(s){console.log(s);}); */
 } 
