@@ -7,6 +7,7 @@
   <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
   <script type="text/javascript" src="node_modules/underscore/underscore.js"></script>
   <script type="text/javascript" src="node_modules/backbone/backbone.js"></script>
+  <script type="text/javascript" src="node_modules/backbone.localstorage/backbone.localStorage.js"></script>
   <script type="text/javascript" src="node_modules/backbone.marionette/lib/backbone.marionette.js"></script>
   <style>
 .panel-body { padding-left: 0.2em; }
@@ -25,7 +26,7 @@
         type="submit"
         class="btn btn-default"
         id="select_nuxeo"
-      >Select Nuxeo Project Folder</button>
+      >Select Nuxeo Connection</button><span id="nx_status"/>
     </div>
     <div class="col-xs-4">
       <button type="submit" class="btn btn-default" id="upload">Start Upload</button>

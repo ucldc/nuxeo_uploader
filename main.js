@@ -1,7 +1,3 @@
-var gui = require('nw.gui');
-var mb = new gui.Menu({type:"menubar"});
-mb.createMacBuiltin("nuxeo-uploader");
-gui.Window.get().menu = mb;
 var Promise = require("bluebird");
 var nuxeo = Promise.promisifyAll(require('nuxeo'));
 var nuxeoupload = require('./nuxeoupload');
@@ -67,6 +63,7 @@ NuxeoUploadApp.module("Config", {
 
     // detect when user has selected files
     // http://stackoverflow.com/a/12102992
+   
     input = $('input');
     input.click(function () {
       this.value = null;
