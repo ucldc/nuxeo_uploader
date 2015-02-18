@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 'use strict';
 var nuxeo = require('nuxeo');
 var temp = require('temp');
