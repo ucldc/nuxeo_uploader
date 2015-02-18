@@ -6,16 +6,22 @@ var NuxeoUploadApp = new Backbone.Marionette.Application();
 
 NuxeoUploadApp.module("Config", {
   define: function(NuxeoUploadApp, Config, Backbone, Marionette, $, _, nuxeo){
-    console.log(NuxeoUploadApp);
-    console.log(nuxeo);
 
+    /*
+     *  set up Models and Views
+     */
+
+    // model for a file
     var File = Backbone.Model.extend({}); 
 
+    // Files selected by the user for upload
+    //  (items will get pull off list as uploaded
     var LocalList = Backbone.Collection.extend({
       model: File
     });
 
-    var LocalView = Backbone.View.extend({
+    // View a file (independent of the list/state that it is in)
+    var FileView = Backbone.View.extend({
       tagName: 'div',
       initialize: function(){
         // _.bindAll(this, 'render');
@@ -27,11 +33,9 @@ NuxeoUploadApp.module("Config", {
       }
     });
 
-    var ListView = Backbone.View.extend({
+    // View for local files
+    var LocalListView = Backbone.View.extend({
       el: $('#local .panel-body'),
-      events: {
-        'click button#add': 'addItem'
-      },
       initialize: function(){
         _.bindAll(this, 'render', 'addFiles', 'appendItem');
 
@@ -52,18 +56,21 @@ NuxeoUploadApp.module("Config", {
           self.collection.add(file);
         });
       },
-      appendItem: function(item){
-        var itemView = new LocalView({
-          model: item
+      appendItem: function(file){
+        var fileView = new FileView({
+          model: file 
         });
-        $(this.el).append(itemView.render().el);
+        $(this.el).append(fileView.render().el);
       }
     });
-    var listView = new ListView();
+    var listView = new LocalListView();
+
+    /*
+     *  Select files for upload
+     */
 
     // detect when user has selected files
     // http://stackoverflow.com/a/12102992
-   
     input = $('input');
     input.click(function () {
       this.value = null;
@@ -72,6 +79,10 @@ NuxeoUploadApp.module("Config", {
       listView.addFiles(this.files);
       this.disabled = true;
     });
+
+    /*
+     *  Nuxeo config
+     */
   
     // set up the page
     $('#select_nuxeo').click(function () {
@@ -85,6 +96,16 @@ NuxeoUploadApp.module("Config", {
     nuxeoupload.nx_status(client, function(x) {
       $('#nx_status').html(x.toString());
     });
+
+    /*
+     *  Uploading files
+     */
+
+
+    /*
+     *  Files uploaded
+     */
+
   }
 }, nuxeo);
 NuxeoUploadApp.start();
