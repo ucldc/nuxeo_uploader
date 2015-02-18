@@ -4,8 +4,8 @@ var nuxeoupload = require('./nuxeoupload');
 
 var NuxeoUploadApp = new Backbone.Marionette.Application();
 
-NuxeoUploadApp.module("Config", {
-  define: function(NuxeoUploadApp, Config, Backbone, Marionette, $, _, nuxeo){
+NuxeoUploadApp.module("Upload", {
+  define: function(NuxeoUploadApp, Upload, Backbone, Marionette, $, _, nuxeo){
 
     /*
      *  set up Models and Views
@@ -15,8 +15,14 @@ NuxeoUploadApp.module("Config", {
     var File = Backbone.Model.extend({}); 
 
     // Files selected by the user for upload
-    //  (items will get pull off list as uploaded
+    //  items will get pull off list as uploaded
     var LocalList = Backbone.Collection.extend({
+      model: File
+    });
+    var UploadingList = Backbone.Collection.extend({
+      model: File
+    });
+    var FinishedList = Backbone.Collection.extend({
       model: File
     });
 
@@ -45,8 +51,7 @@ NuxeoUploadApp.module("Config", {
         this.counter = 0;
         // this.render();
       },
-      render: function(){
-      },
+      // add an array of files
       addFiles: function(e){
         var self = this;
         _(e).each(function(item) { 
@@ -63,7 +68,45 @@ NuxeoUploadApp.module("Config", {
         $(this.el).append(fileView.render().el);
       }
     });
-    var listView = new LocalListView();
+
+    // View for in progress files
+    var UploadingListView = Backbone.View.extend({
+      el: $('#progress .panel-body'),
+      initialize: function(){
+        _.bindAll(this, 'render', 'addFiles', 'appendItem');
+
+        this.collection = new LocalList();
+        this.collection.bind('add', this.appendItem);
+
+        this.counter = 0;
+        // this.render();
+      },
+      // add an array of files
+      addFiles: function(e){
+        var self = this;
+        _(e).each(function(item) { 
+          self.counter++;
+          var file = new File;
+          file.set(item);
+          self.collection.add(file);
+        });
+      },
+      appendItem: function(file){
+        var fileView = new FileView({
+          model: file 
+        });
+        $(this.el).append(fileView.render().el);
+      }
+    });
+
+    // View for finished files
+    var FinishedListView = Backbone.View.extend({
+      el: $('#nuxeo .panel-body'),
+    });
+
+    var localListView = new LocalListView();
+    var uploadingListView = new UploadingListView();
+    var finishedListView = new FinishedListView();
 
     /*
      *  Select files for upload
@@ -76,7 +119,7 @@ NuxeoUploadApp.module("Config", {
       this.value = null;
     });
     input.on('change', function () {
-      listView.addFiles(this.files);
+      localListView.addFiles(this.files);
       this.disabled = true;
     });
 
@@ -84,22 +127,24 @@ NuxeoUploadApp.module("Config", {
      *  Nuxeo config
      */
   
-    // set up the page
     $('#select_nuxeo').click(function () {
     });
-
-    $('#upload').click(function () {
-      new Notification("Upload Failed!  Not implimented yet");
-    });
-
+    // nuxeo status
     client = new nuxeo.Client();
     nuxeoupload.nx_status(client, function(x) {
-      $('#nx_status').html(x.toString());
+      if (x) {
+        $('#nx_status').addClass('glyphicon glyphicon-ok').html('ok');
+      }
     });
+
 
     /*
      *  Uploading files
      */
+    $('#upload').click(function () {
+      // new Notification("Upload Failed!  Not implimented yet");
+      
+    });
 
 
     /*
