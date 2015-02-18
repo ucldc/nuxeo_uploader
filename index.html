@@ -3,10 +3,12 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="bower_components/bootstrap-tour/build/css/bootstrap-tour.css">
   <script type="text/javascript" src="node_modules/jquery/dist/jquery.js"></script>
   <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
   <script type="text/javascript" src="node_modules/underscore/underscore.js"></script>
   <script type="text/javascript" src="node_modules/backbone/backbone.js"></script>
+  <script type="text/javascript" src="bower_components/bootstrap-tour/build/js/bootstrap-tour.js"></script>
   <script type="text/javascript" src="node_modules/backbone.localstorage/backbone.localStorage.js"></script>
   <script type="text/javascript" src="node_modules/backbone.marionette/lib/backbone.marionette.js"></script>
   <style>
@@ -25,46 +27,46 @@
       <button
         type="submit"
         class="btn btn-default"
-        id="select_nuxeo"
-      >Select Nuxeo Connection</button><span id="nx_status"/>
+        id="select_nuxeo">
+        <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+        Configure Nuxeo
+      </button>
+      <span id="nx_status" aria-hidden="true"/>
     </div>
     <div class="col-xs-4">
-      <button type="submit" class="btn btn-default" id="upload">Start Upload</button>
+      <button type="submit" class="btn btn-default" id="upload">
+        <span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span>
+        Start Upload
+      </button>
       <button type="submit" class="btn btn-default" id="pause">Pause</button>
     </div>
   </div>
+
+
   <div class="row">
     <div class="col-xs-4" style="padding-top: 1em;" id="local">
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h3 class="panel-title">Local files</h3>
+          <h3 class="panel-title">Selected Local files</h3>
         </div>
         <div class="panel-body">
         </div>
       </div>
     </div>
-    <div class="col-xs-4" style="padding-top: 1em;" id="nuxeo">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <h3 class="panel-title">Remote files</h3>
-        </div>
-        <div class="panel-body">
-        </div>
-      </div>
-    </div>
+
     <div class="col-xs-4" style="padding-top: 1em;" id="progress">
       <div class="panel panel-default">
         <div class="panel-heading">
           <h3 class="panel-title">Current progress</h3>
         </div>
         <div class="panel-body">
-          <h3 style="margin-top: 0;">overall</h3>
+          overall
           <div class="files progress">
             <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
               <span>0 / 100</span>
             </div>
           </div>
-          <h3>current file</h3>
+          current files
           <div class="file progress">
             <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
               <span>0% Complete</span>
@@ -76,6 +78,16 @@
         </div>
       </div>
     </div>
+    <div class="col-xs-4" style="padding-top: 1em;" id="nuxeo">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">Uploaded Okay</h3>
+        </div>
+        <div class="panel-body">
+        </div>
+      </div>
+    </div>
+
   </div>
   <script type="text/javascript" src="main.js"></script>
 </body>
