@@ -1,3 +1,4 @@
+'use strict';
 var Promise = require("bluebird");
 var nuxeo = Promise.promisifyAll(require('nuxeo'));
 var nuxeoupload = require('./nuxeoupload');
@@ -6,6 +7,7 @@ var NuxeoUploadApp = new Backbone.Marionette.Application();
 
 NuxeoUploadApp.module("Upload", {
   define: function(NuxeoUploadApp, Upload, Backbone, Marionette, $, _, nuxeo){
+    var client = new nuxeo.Client();
 
     /*
      *  set up Models and Views
@@ -43,10 +45,11 @@ NuxeoUploadApp.module("Upload", {
     var LocalListView = Backbone.View.extend({
       el: $('#local .panel-body'),
       initialize: function(){
-        _.bindAll(this, 'render', 'addFiles', 'appendItem');
+        _.bindAll(this, 'render', 'addFiles', 'appendItem', 'removeItem');
 
         this.collection = new LocalList();
         this.collection.bind('add', this.appendItem);
+        this.collection.bind('remove', this.removeItem);
 
         this.counter = 0;
         // this.render();
@@ -65,7 +68,11 @@ NuxeoUploadApp.module("Upload", {
         var fileView = new FileView({
           model: file 
         });
+        console.log(file, fileView);
         $(this.el).append(fileView.render().el);
+      },
+      removeItem: function(file){
+        $(this.el).remove();
       }
     });
 
@@ -73,10 +80,11 @@ NuxeoUploadApp.module("Upload", {
     var UploadingListView = Backbone.View.extend({
       el: $('#progress .panel-body'),
       initialize: function(){
-        _.bindAll(this, 'render', 'addFiles', 'appendItem');
+        _.bindAll(this, 'render', 'addFiles', 'appendItem', 'removeItem');
 
-        this.collection = new LocalList();
+        this.collection = new UploadingList();
         this.collection.bind('add', this.appendItem);
+        this.collection.bind('remove', this.removeItem);
 
         this.counter = 0;
         // this.render();
@@ -95,7 +103,14 @@ NuxeoUploadApp.module("Upload", {
         var fileView = new FileView({
           model: file 
         });
+        nuxeoupload.upload(client,
+                        { file: file.attributes.path,
+                          folder: '/default-domain/workspaces/test' },
+                        function(s){console.log(s);});
         $(this.el).append(fileView.render().el);
+      },
+      removeItem: function(file){
+        $(this.el).remove();
       }
     });
 
@@ -114,13 +129,15 @@ NuxeoUploadApp.module("Upload", {
 
     // detect when user has selected files
     // http://stackoverflow.com/a/12102992
-    input = $('input');
+    var input = $('input');
     input.click(function () {
       this.value = null;
     });
     input.on('change', function () {
       localListView.addFiles(this.files);
       this.disabled = true;
+      $(this).addClass('btn-default').removeClass('btn-primary');
+      $('#upload').addClass('btn-primary');
     });
 
     /*
@@ -130,7 +147,7 @@ NuxeoUploadApp.module("Upload", {
     $('#select_nuxeo').click(function () {
     });
     // nuxeo status
-    client = new nuxeo.Client();
+    var client = new nuxeo.Client();
     nuxeoupload.nx_status(client, function(x) {
       if (x) {
         $('#nx_status').addClass('glyphicon glyphicon-ok').html('ok');
@@ -142,8 +159,13 @@ NuxeoUploadApp.module("Upload", {
      *  Uploading files
      */
     $('#upload').click(function () {
+      localListView.collection.each(function(file) {
+        console.log(file);
+        localListView.collection.remove(file);
+        uploadingListView.collection.add(file.attributes);
+      });
+      $(this).button('loading');
       // new Notification("Upload Failed!  Not implimented yet");
-      
     });
 
 

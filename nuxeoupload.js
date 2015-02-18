@@ -54,14 +54,15 @@ module.exports.upload = function upload(client, params, callback) {
     .input(file)
     .uploader();
     
-  uploader.uploadFile(file);
+  uploader.uploadFile(file.path);
   uploader.execute(function(error, data) {
     if (error) {
       return error;
     }
     if (!data.entries.length) {
-      console.log('hey;');
-      throw new Error('Upload/execute returned w/o errors, but `entries` is empty');
+      console.log(file, data);
+      throw new Error('Upload/execute returned w/o errors, but `entries` is empty '
+                       + file.path );
     }
     console.log(data.entries[0].uid, data.entries[0].path);
   });
@@ -73,8 +74,8 @@ module.exports.upload = function upload(client, params, callback) {
 if(require.main === module) {
   var client = new nuxeo.Client();
   module.exports.nx_status(client, function(x) { console.log(x) });
-  /* var status = module.exports.upload(client,
+  var status = module.exports.upload(client,
                         { file: process.argv[2],
                           folder: '/default-domain/workspaces/test' },
-                        function(s){console.log(s);}); */
+                        function(s){console.log(s);});
 } 
