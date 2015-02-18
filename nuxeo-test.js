@@ -18,7 +18,6 @@ x.uploadFile(file);
 
 x.execute({
     path: path.basename(process.argv[2]),
-    filename: path.basename(process.argv[2]),
   }, function (error, data) {
     if (error) {
       throw error;
