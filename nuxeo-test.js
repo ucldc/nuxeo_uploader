@@ -14,12 +14,11 @@ var x = client.operation('FileManager.Import')
   .context({ currentDocument: '/TestBlobs' })
   .uploader();
 
-x.uploadFile(file);
-
-x.execute({
-    path: path.basename(process.argv[2]),
-  }, function (error, data) {
+x.uploadFile(file, function(fileIndex, file, timeDiff) {
+  // When done, execute the operation
+  x.execute(function(error, data) {
     if (error) {
+      // something went wrong
       throw error;
     }
     console.log(data);
@@ -27,5 +26,6 @@ x.execute({
       throw new Error('Upload/execute returned w/o errors, but `entries` is empty '
                        + file.path );
     }
+    // successfully attached blob
   });
-
+});

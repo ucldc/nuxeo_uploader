@@ -53,20 +53,20 @@ module.exports.upload = function upload(client, params, callback) {
     .context({ currentDocument: params.folder })
     .uploader();
 
-  uploader.uploadFile(file);
-
-  uploader.execute({
-    path: path.basename(params.file)
-  }, function (error, data) {
-    if (error) {
-      throw error;
-    }
-    if (!data.entries.length) {
-      console.log(file, data);
-      throw new Error('Upload/execute returned w/o errors, but `entries` is empty '
-                       + file.path );
-    }
-    console.log(data.entries[0].uid, data.entries[0].path);
+  uploader.uploadFile(file, function(fileIndex, file, timeDiff) {
+    uploader.execute({
+      path: path.basename(params.file)
+    }, function (error, data) {
+      if (error) {
+        throw error;
+      }
+      if (!data.entries.length) {
+        console.log(file, data);
+        throw new Error('Upload/execute returned w/o errors, but `entries` is empty '
+                         + file.path );
+      }
+      console.log(data.entries[0].uid, data.entries[0].path);
+    });
   });
 }
 
