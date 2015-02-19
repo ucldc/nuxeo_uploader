@@ -22,7 +22,10 @@ x.execute({
     if (error) {
       throw error;
     }
-
     console.log(data);
+    if (!data.entries.length) {
+      throw new Error('Upload/execute returned w/o errors, but `entries` is empty '
+                       + file.path );
+    }
   });
 

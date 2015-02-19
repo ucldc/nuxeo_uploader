@@ -51,13 +51,15 @@ module.exports.upload = function upload(client, params, callback) {
 
   var uploader = client.operation('FileManager.Import')
     .context({ currentDocument: params.folder })
-    .input(file)
     .uploader();
-    
-  uploader.uploadFile(file.path);
-  uploader.execute(function(error, data) {
+
+  uploader.uploadFile(file);
+
+  uploader.execute({
+    path: path.basename(process.argv[2])
+  }, function (error, data) {
     if (error) {
-      return error;
+      throw error;
     }
     if (!data.entries.length) {
       console.log(file, data);
