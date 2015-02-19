@@ -1,6 +1,7 @@
 'use strict';
 var Promise = require("bluebird");
 var nuxeo = Promise.promisifyAll(require('nuxeo'));
+var rest = require('nuxeo/node_modules/restler');
 var nuxeoupload = require('./nuxeoupload');
 
 var NuxeoUploadApp = new Backbone.Marionette.Application();
@@ -160,6 +161,7 @@ NuxeoUploadApp.module("Upload", {
      */
     $('#upload').click(function () {
       localListView.collection.each(function(file) {
+        if (file === undefined) { return; }
         console.log(file);
         localListView.collection.remove(file);
         uploadingListView.collection.add(file.attributes);

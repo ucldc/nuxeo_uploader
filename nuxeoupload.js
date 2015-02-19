@@ -56,7 +56,7 @@ module.exports.upload = function upload(client, params, callback) {
   uploader.uploadFile(file);
 
   uploader.execute({
-    path: path.basename(process.argv[2])
+    path: path.basename(params.file)
   }, function (error, data) {
     if (error) {
       throw error;
