@@ -147,9 +147,15 @@ NuxeoUploadApp.on("start", function(options){
   $('#select_nuxeo').click(function () {
   });
   // nuxeo status
-  nuxeoupload.nx_status(client, function(x) {
-    if (x) {
-      $('#nx_status').addClass('glyphicon glyphicon-ok').html('ok');
+  nuxeoupload.nx_status(client, function(it_is_up) {
+    if (it_is_up) {
+      $('#nx_status')
+        .addClass('glyphicon glyphicon-ok')
+        .html('ok');
+    } else {
+      $('#nx_status')
+        .html('<button class="btn btn-default pull-up" data-toggle="tooltip" title="setup nuxeo connection"><span class="glyphicon glyphicon-wrench"></span></button>');
+      $('#nx_status button').tooltip();
     }
   });
 
