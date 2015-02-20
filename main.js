@@ -152,10 +152,6 @@ NuxeoUploadApp.on("start", function(options){
       $('#nx_status')
         .addClass('glyphicon glyphicon-ok')
         .html('ok');
-    } else {
-      $('#nx_status')
-        .html('<button class="btn btn-default pull-up" data-toggle="tooltip" title="setup nuxeo connection"><span class="glyphicon glyphicon-wrench"></span></button>');
-      $('#nx_status button').tooltip();
     }
   });
 
