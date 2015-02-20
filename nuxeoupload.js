@@ -6,6 +6,7 @@ var rest = require('nuxeo/node_modules/restler');
 var fs = require('fs');
 var pfa = require("bluebird").promisifyAll;
 var path = require('path');
+var os = require('os');
 nuxeo = pfa(nuxeo);
 
 /*
@@ -71,13 +72,25 @@ module.exports.upload = function upload(client, params, callback) {
 }
 
 /*
+ * get auth token from Nuxeo server.
+ */
+module.exports.get_auth_token_link = function get_auth_token_link(client) {
+  return client._baseURL        +
+         'authentication/token' +
+         '?applicationName='    + encodeURIComponent("CDL Nuxeo Client") +
+         '&deviceId='           + encodeURIComponent(os.hostname()) +
+         '&deviceDescription='  + encodeURIComponent("") +
+         '&permission=rw';
+}
+
+/*
  * if this is running as a script
  */
-if(require.main === module) {
+if (require.main === module) {
   var client = new nuxeo.Client();
   module.exports.nx_status(client, function(x) { console.log(x) });
   var status = module.exports.upload(client,
                         { file: process.argv[2],
                           folder: '/default-domain/workspaces/test' },
                         function(s){console.log(s);});
-} 
+}

@@ -3,6 +3,7 @@ var Promise = require("bluebird");
 var nuxeo = require('nuxeo');
 var rest = require('nuxeo/node_modules/restler');
 var nuxeoupload = require('./nuxeoupload');
+var gui = require('nw.gui');
 
 var NuxeoUploadApp = new Backbone.Marionette.Application();
 
@@ -171,5 +172,10 @@ NuxeoUploadApp.on("start", function(options){
    *  Files uploaded
    */
 
+  /*
+   *  get nuxeo token
+   */
+  // var new_win = gui.Window.open(nuxeoupload.get_auth_token_link(client));
 });
+
 NuxeoUploadApp.start();
