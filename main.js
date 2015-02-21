@@ -176,6 +176,9 @@ NuxeoUploadApp.on("start", function(options){
       $('#nx_status')
         .addClass('glyphicon glyphicon-ok text-success')
         .html('ok');
+      // enable folder selection when connection is set up
+      $('#select_nuxeo')
+        .removeClass('disabled');
     } else {
       $('#nx_status')
          .addClass('glyphicon glyphicon-remove text-danger')
