@@ -1,23 +1,26 @@
 'use strict';
-var Promise = require("bluebird");
+var path = require('path');
+var Promise = require('bluebird');
 var nuxeo = require('nuxeo');
 var rest = require('nuxeo/node_modules/restler');
-var nuxeoupload = require('./nuxeoupload');
 var gui = require('nw.gui');
-var path = require('path');
+var nuxeoupload = require('./nuxeoupload');
+var logger = require('./log');
 
+// https://github.com/nwjs/nw.js/issues/1955
 var win = gui.Window.get();
 var nativeMenuBar = new gui.Menu({ type: "menubar" });
 try {
   nativeMenuBar.createMacBuiltin("Nuxeo Uploader");
   win.menu = nativeMenuBar;
 } catch (ex) {
-  console.log(ex.message);
+  logger.warn(ex.message);
 }
 
 var NuxeoUploadApp = new Backbone.Marionette.Application();
 
 NuxeoUploadApp.on("start", function(options){
+  logger.info('application starting');
   var client = new nuxeo.Client();
   /*
    *  set up Models and Views
@@ -78,7 +81,6 @@ NuxeoUploadApp.on("start", function(options){
       var fileView = new FileView({
         model: file 
       });
-      console.log(file, fileView);
       $(this.el).append(fileView.render().el);
     },
     removeItem: function(file){
@@ -116,7 +118,7 @@ NuxeoUploadApp.on("start", function(options){
       nuxeoupload.upload(client,
                       { file: file.attributes.path,
                         folder: '/default-domain/workspaces/test' },
-                      function(s){console.log(s);});
+                      function(s){logger.info(s);});
       $(this.el).append(fileView.render().el);
     },
     removeItem: function(file){
@@ -192,7 +194,7 @@ NuxeoUploadApp.on("start", function(options){
   $('#upload').click(function () {
     localListView.collection.each(function(file) {
       if (file === undefined) { return; }
-      console.log(file);
+      logger.info('log to file' + file);
       localListView.collection.remove(file);
       uploadingListView.collection.add(file.attributes);
     });
