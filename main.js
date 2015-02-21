@@ -129,7 +129,7 @@ NuxeoUploadApp.on("start", function(options){
 
   // detect when user has selected files
   // http://stackoverflow.com/a/12102992
-  var input = $('input');
+  var input = $('input[type=file]');
   input.click(function () {
     this.value = null;
   });
