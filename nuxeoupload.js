@@ -74,9 +74,8 @@ module.exports.upload = function upload(client, params, callback) {
 /*
  * get auth token from Nuxeo server.
  */
-module.exports.get_auth_token_link = function get_auth_token_link(client) {
-  return client._baseURL        +
-         'authentication/token' +
+module.exports.get_auth_token_link = function get_auth_token_link() {
+  return 'authentication/token' +
          '?applicationName='    + encodeURIComponent("CDL Nuxeo Client") +
          '&deviceId='           + encodeURIComponent(os.hostname()) +
          '&deviceDescription='  + encodeURIComponent("") +

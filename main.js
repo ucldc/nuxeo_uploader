@@ -4,6 +4,16 @@ var nuxeo = require('nuxeo');
 var rest = require('nuxeo/node_modules/restler');
 var nuxeoupload = require('./nuxeoupload');
 var gui = require('nw.gui');
+var path = require('path');
+
+var win = gui.Window.get();
+var nativeMenuBar = new gui.Menu({ type: "menubar" });
+try {
+  nativeMenuBar.createMacBuiltin("Nuxeo Uploader");
+  win.menu = nativeMenuBar;
+} catch (ex) {
+  console.log(ex.message);
+}
 
 var NuxeoUploadApp = new Backbone.Marionette.Application();
 
@@ -141,17 +151,35 @@ NuxeoUploadApp.on("start", function(options){
   });
 
   /*
-   *  Nuxeo config
+   *  Nuxeo Folders
    */
 
   $('#select_nuxeo').click(function () {
   });
-  // nuxeo status
+
+  /*
+   *  nuxeo config
+           .nuxeo-config #nuxeo_server #nuxeo_token #auth_token_link
+   */
+
+  $('#auth_token_link').on('click', function(event, baseURL) {
+    var new_win = gui.Window.open($('#nuxeo_server').val() +
+                                  path.join('/nuxeo',
+                                            nuxeoupload.get_auth_token_link()));
+  });
+
+  /*
+   *  nuxeo status
+   */
   nuxeoupload.nx_status(client, function(it_is_up) {
     if (it_is_up) {
       $('#nx_status')
-        .addClass('glyphicon glyphicon-ok')
+        .addClass('glyphicon glyphicon-ok text-success')
         .html('ok');
+    } else {
+      $('#nx_status')
+         .addClass('glyphicon glyphicon-remove text-danger')
+        .html('not connected');
     }
   });
 
@@ -174,10 +202,6 @@ NuxeoUploadApp.on("start", function(options){
    *  Files uploaded
    */
 
-  /*
-   *  get nuxeo token
-   */
-  // var new_win = gui.Window.open(nuxeoupload.get_auth_token_link(client));
 });
 
 NuxeoUploadApp.start();
