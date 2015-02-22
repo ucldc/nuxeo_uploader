@@ -2,7 +2,7 @@
   "name": "nuxeouploader",
   "version": "0.0.1",
   "description": "upload files to nuxeo",
-  "main": "app/index.html",
+  "main": "dist/index.html",
   "repository": {
     "type": "git",
     "url": "https://github.com/tingletech/nuxeo_uploader.git"
@@ -17,16 +17,11 @@
     "height": 600
   },
   "dependencies": {
-    "backbone": "^1.1.2",
-    "backbone.epoxy": "^1.3.1",
     "backbone.localstorage": "^1.1.16",
-    "backbone.marionette": "^2.3.2",
     "bluebird": "^2.9.12",
     "bootstrap": "^3.3.2",
-    "jquery": "^2.1.3",
     "node-webkit-builder": "*",
     "nuxeo": "^0.4.0",
-    "underscore": "^1.8.1",
     "winston": "^0.9.0"
   },
   "devDependencies": {

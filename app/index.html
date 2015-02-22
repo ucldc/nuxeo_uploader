@@ -1,20 +1,24 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html class="no-js">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <title>nuxeo_uploader</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width">
   <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.css">
-  <script type="text/javascript" src="../node_modules/jquery/dist/jquery.js"></script>
-  <script type="text/javascript" src="../node_modules/bootstrap/dist/js/bootstrap.js"></script>
-  <script type="text/javascript" src="../node_modules/underscore/underscore.js"></script>
-  <script type="text/javascript" src="../node_modules/backbone/backbone.js"></script>
-  <script type="text/javascript" src="../node_modules/backbone.epoxy/backbone.epoxy.js"></script>
-  <script type="text/javascript" src="../node_modules/backbone.localstorage/backbone.localStorage.js"></script>
-  <script type="text/javascript" src="../node_modules/backbone.marionette/lib/backbone.marionette.js"></script>
+  <link rel="shortcut icon" href="/favicon.ico">
   <style>
     .panel-body { padding-left: 0.2em; }
   </style>
+  <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+  <!-- build:css(.) styles/vendor.css -->
+  <!-- bower:css -->
+  <!-- endbower -->
+  <!-- endbuild -->
+  <!-- build:css(.tmp) styles/main.css -->
+  <link rel="stylesheet" href="styles/main.css">
+  <!-- endbuild -->
 </head>
-
 <body class="container-fluid">
 
   <!-- heading + config widget -->
@@ -168,6 +172,33 @@
       </div>
     </div>
   </div>
-  <script type="text/javascript" src="main.js"></script>
+  <!-- build:js(.) scripts/vendor.js -->
+  <!-- bower:js -->
+  <script src="bower_components/jquery/dist/jquery.js"></script>
+  <script src="bower_components/bootstrap-progressbar/bootstrap-progressbar.js"></script>
+  <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/affix.js"></script>
+  <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/alert.js"></script>
+  <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/button.js"></script>
+  <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/carousel.js"></script>
+  <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/collapse.js"></script>
+  <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/dropdown.js"></script>
+  <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tab.js"></script>
+  <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/transition.js"></script>
+  <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/scrollspy.js"></script>
+  <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/modal.js"></script>
+  <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/tooltip.js"></script>
+  <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap/popover.js"></script>
+  <script src="bower_components/underscore/underscore.js"></script>
+  <script src="bower_components/backbone/backbone.js"></script>
+  <script src="bower_components/backbone.babysitter/lib/backbone.babysitter.js"></script>
+  <script src="bower_components/backbone.wreqr/lib/backbone.wreqr.js"></script>
+  <script src="bower_components/backbone.marionette/lib/core/backbone.marionette.js"></script>
+  <script src="bower_components/backbone.epoxy/backbone.epoxy.js"></script>
+  <!-- endbower -->
+  <!-- endbuild -->
+
+      <!-- build:js({app,.tmp}) main.js -->
+      <script src="main.js"></script>
+      <!-- endbuild -->
 </body>
 </html>
