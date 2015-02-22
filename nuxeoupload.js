@@ -22,7 +22,10 @@ module.exports.nx_status = function nx_status(client, cb){
 /*
  * get writable locations
  */
-module.exports.writable = function writable(client, callback){
+module.exports.writable_folderish = function writable_folderish(client, callback){
+
+  return ['UCX/SomeProjectFolderName','UCX/SomeProjectFolderName/SomeFolderish'];
+
   // find folders the user can write to
   // "Since Nuxeo 6.0-HF06 or Nuxeo 7.2 you can use ecm:acl"
   // http://doc.nuxeo.com/display/NXDOC/NXQL
@@ -30,6 +33,7 @@ module.exports.writable = function writable(client, callback){
              ' WHERE ecm:acl/*1/permission' +
              ' IN ("ReadWrite")';
 
+  /* 
   var request = pfa(client.request('/').schema(['dublincore', 'file'])
     .path('@search')
     .query({
@@ -39,7 +43,7 @@ module.exports.writable = function writable(client, callback){
 
   request.executeAsync().then(function(data){
     console.log(data[0].errorMessage, data[0].entries);
-  });
+  }); */
 }
 
 /*
