@@ -5,7 +5,7 @@ var nuxeo = require('nuxeo');
 var rest = require('nuxeo/node_modules/restler');
 var gui = require('nw.gui');
 var nuxeoupload = require('./nuxeoupload');
-var logger = require('./log');
+var logger = require('./logs');
 
 // https://github.com/nwjs/nw.js/issues/1955
 var win = gui.Window.get();
