@@ -1,7 +1,7 @@
 'use strict';
 var path = require('path');
 var Promise = require('bluebird');
-var nuxeo = require('nuxeo');
+var nuxeo = nuxeo || require('nuxeo');
 var rest = require('nuxeo/node_modules/restler');
 var gui = require('nw.gui');
 var nuxeoupload = require('./nuxeoupload');
@@ -21,13 +21,21 @@ var NuxeoUploadApp = new Backbone.Marionette.Application();
 
 NuxeoUploadApp.on("start", function(options){
   logger.info('application starting');
-  var client = new nuxeo.Client();
+  var client = new nuxeo.Client({
+    baseURL: 'http://localhost:8080/nuxeo/',
+    auth: {
+      method: 'token'
+    },
+    headers: {
+      'X-Authentication-Token': process.env.NUXEO_TOKEN
+    }
+  });
   /*
    *  set up Models and Views
    */
 
   // model for a file
-  var File = Backbone.Model.extend({}); 
+  var File = Backbone.Model.extend({});
 
   // Files selected by the user for upload
   //  items will get pull off list as uploaded
@@ -70,7 +78,7 @@ NuxeoUploadApp.on("start", function(options){
     // add an array of files
     addFiles: function(e){
       var self = this;
-      _(e).each(function(item) { 
+      _(e).each(function(item) {
         self.counter++;
         var file = new File;
         file.set(item);
@@ -79,7 +87,7 @@ NuxeoUploadApp.on("start", function(options){
     },
     appendItem: function(file){
       var fileView = new FileView({
-        model: file 
+        model: file
       });
       $(this.el).append(fileView.render().el);
     },
@@ -104,7 +112,7 @@ NuxeoUploadApp.on("start", function(options){
     // add an array of files
     addFiles: function(e){
       var self = this;
-      _(e).each(function(item) { 
+      _(e).each(function(item) {
         self.counter++;
         var file = new File;
         file.set(item);
@@ -113,7 +121,7 @@ NuxeoUploadApp.on("start", function(options){
     },
     appendItem: function(file){
       var fileView = new FileView({
-        model: file 
+        model: file
       });
       nuxeoupload.upload(client,
                       { file: file.attributes.path,

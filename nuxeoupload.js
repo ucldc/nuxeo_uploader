@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-var nuxeo = require('nuxeo');
+var nuxeo = nuxeo || require('nuxeo');
 var rest = require('nuxeo/node_modules/restler');
 var fs = require('fs');
 var pfa = require("bluebird").promisifyAll;
@@ -33,7 +33,7 @@ module.exports.writable_folderish = function writable_folderish(client, callback
              ' WHERE ecm:acl/*1/permission' +
              ' IN ("ReadWrite")';
 
-  /* 
+  /*
   var request = pfa(client.request('/').schema(['dublincore', 'file'])
     .path('@search')
     .query({
@@ -89,10 +89,21 @@ module.exports.get_auth_token_link = function get_auth_token_link() {
  * if this is running as a script
  */
 if (require.main === module) {
-  var client = new nuxeo.Client();
-  module.exports.nx_status(client, function(x) { console.log(x) });
+  var client = new nuxeo.Client({
+    auth: {
+      method: 'token'
+    },
+    headers: {
+      'X-Authentication-Token': process.env.NUXEO_TOKEN
+    }
+  });
+  console.log(
+    module.exports.nx_status(client, function(x) { console.log(x) })
+  );
+  return;
   var status = module.exports.upload(client,
                         { file: process.argv[2],
                           folder: '/default-domain/workspaces/test' },
                         function(s){console.log(s);});
 }
+
