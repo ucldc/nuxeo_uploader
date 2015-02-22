@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 'use strict';
 var nuxeo = require('nuxeo');
-var temp = require('temp');
 var rest = require('nuxeo/node_modules/restler');
 var fs = require('fs');
 var pfa = require("bluebird").promisifyAll;
