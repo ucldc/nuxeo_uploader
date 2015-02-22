@@ -3,6 +3,10 @@
   "version": "0.0.1",
   "description": "upload files to nuxeo",
   "main": "index.html",
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/tingletech/nuxeo_uploader.git"
+  },
   "window": {
     "title": "Nuxeo File Uploader",
     "toolbar": true,
