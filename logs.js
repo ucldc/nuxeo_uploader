@@ -1,5 +1,5 @@
  /* http://stackoverflow.com/a/12019883/1763984
-  *
+  *  
    var logger = require('./log');
    logger.info('log to file');
 
@@ -13,9 +13,9 @@ var logger = new (winston.Logger)({
       json: false,
       timestamp: true
     }),
-    new winston.transports.File({
-      filename: path.join(__dirname, '..', 'logs', 'debug.log'),
-      json: false
+    new winston.transports.File({ 
+      filename: path.join(__dirname, 'logs', 'debug.log'),
+      json: false 
     })
   ],
   exceptionHandlers: [
@@ -24,7 +24,7 @@ var logger = new (winston.Logger)({
       timestamp: true
     }),
     new winston.transports.File({
-      filename: path.join(__dirname, '..', 'logs', 'exceptions.log'),
+      filename: path.join(__dirname, 'logs', 'exceptions.log'),
       json: false
     })
   ],

@@ -27,7 +27,7 @@ NuxeoUploadApp.on("start", function(options){
    */
 
   // model for a file
-  var File = Backbone.Model.extend({});
+  var File = Backbone.Model.extend({}); 
 
   // Files selected by the user for upload
   //  items will get pull off list as uploaded
@@ -70,7 +70,7 @@ NuxeoUploadApp.on("start", function(options){
     // add an array of files
     addFiles: function(e){
       var self = this;
-      _(e).each(function(item) {
+      _(e).each(function(item) { 
         self.counter++;
         var file = new File;
         file.set(item);
@@ -79,7 +79,7 @@ NuxeoUploadApp.on("start", function(options){
     },
     appendItem: function(file){
       var fileView = new FileView({
-        model: file
+        model: file 
       });
       $(this.el).append(fileView.render().el);
     },
@@ -104,7 +104,7 @@ NuxeoUploadApp.on("start", function(options){
     // add an array of files
     addFiles: function(e){
       var self = this;
-      _(e).each(function(item) {
+      _(e).each(function(item) { 
         self.counter++;
         var file = new File;
         file.set(item);
@@ -113,7 +113,7 @@ NuxeoUploadApp.on("start", function(options){
     },
     appendItem: function(file){
       var fileView = new FileView({
-        model: file
+        model: file 
       });
       nuxeoupload.upload(client,
                       { file: file.attributes.path,
