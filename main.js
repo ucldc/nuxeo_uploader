@@ -23,6 +23,35 @@ var NuxeoUploadApp = new Backbone.Marionette.Application();
 NuxeoUploadApp.on("start", function(options){
   logger.info('application starting');
 
+ /*
+  *  set up Models and Views remote folder
+  */
+
+  var NuxeoFolderView = Backbone.View.extend({
+    tagName: "option",
+    initialize: function() {
+      this.$el.text( this.model.get("label") );
+    }
+  });
+
+  var NuxeoFolderCollection = Backbone.Collection.extend({
+    model: Backbone.Model
+  });
+
+  var NuxeoFolderView = Backbone.Epoxy.View.extend({
+    el: "#select_nuxeo",
+    itemView: NuxeoFolderView,
+
+    initialize: function() {
+      this.collection = new NuxeoFolderCollection();
+      this.collection.reset(_(nuxeoupload.writable_folderish()).map(function(x) {
+        return { label: x };
+      }));
+    }
+  });
+
+  var folderView = new NuxeoFolderView();
+
   /*
    *  nuxeo config
            .nuxeo-config #nuxeo_server #nuxeo_token #auth_token_link
@@ -75,7 +104,6 @@ NuxeoUploadApp.on("start", function(options){
     auth: { method: 'token' },
     headers: { 'X-Authentication-Token': configModel.attributes.nuxeoToken }
   });
-
   /*
    *  set up Models and Views for file processing
    */
@@ -85,15 +113,9 @@ NuxeoUploadApp.on("start", function(options){
 
   // Files selected by the user for upload
   //  items will get pull off list as uploaded
-  var LocalList = Backbone.Collection.extend({
-    model: File
-  });
-  var UploadingList = Backbone.Collection.extend({
-    model: File
-  });
-  var FinishedList = Backbone.Collection.extend({
-    model: File
-  });
+  var LocalList = Backbone.Collection.extend({ model: File });
+  var UploadingList = Backbone.Collection.extend({ model: File });
+  var FinishedList = Backbone.Collection.extend({ model: File });
 
   // View a file (independent of the list/state that it is in)
   var FileView = Backbone.View.extend({
