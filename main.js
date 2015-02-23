@@ -21,17 +21,46 @@ var NuxeoUploadApp = new Backbone.Marionette.Application();
 
 NuxeoUploadApp.on("start", function(options){
   logger.info('application starting');
-  var client = new nuxeo.Client({
-    baseURL: 'http://localhost:8080/nuxeo/',
-    auth: {
-      method: 'token'
-    },
-    headers: {
-      'X-Authentication-Token': process.env.NUXEO_TOKEN
+
+  // model for configuration object
+  var ConfigModel = Backbone.Model.extend({
+    localStorage: new Backbone.LocalStorage("nuxeo_uploader_config"),
+    defaults: {
+      nuxeoServer: '',
+      nuxeoToken: '',
+      id: 'config'
     }
   });
+  var configModel = new ConfigModel();
+  var ConfigView = Backbone.Epoxy.View.extend({
+    el: ".nuxeo-config",
+    bindings: {
+      "input#nuxeo_server": "value:nuxeoServer,events:['keyup']",
+      "input#nuxeo_token": "value:nuxeoToken,events:['keyup']" //,
+      // "#auth_token_link": "text:lastName"
+    },
+    initialize: function() {
+      this.model.fetch();
+    },
+    events: {
+      "keyup #nuxeo_server": "onAdd"
+    },
+    onAdd: function(e){
+      debugger;
+      this.model.save({id: 'config'});
+    }
+  });
+  var configView = new ConfigView({model: configModel});
+
+  // set up nuxeo client connection
+  var client = new nuxeo.Client({
+    baseURL: 'http://localhost:8080/nuxeo/',
+    auth: { method: 'token' },
+    headers: { 'X-Authentication-Token': process.env.NUXEO_TOKEN }
+  });
+
   /*
-   *  set up Models and Views
+   *  set up Models and Views for file processing
    */
 
   // model for a file
