@@ -3,6 +3,7 @@ var path = require('path');
 var Promise = require('bluebird');
 var nuxeo = nuxeo || require('nuxeo');
 var rest = require('nuxeo/node_modules/restler');
+var url = require('url');
 var gui = require('nw.gui');
 var nuxeoupload = require('./nuxeoupload');
 var logger = require('./logs');
@@ -22,11 +23,27 @@ var NuxeoUploadApp = new Backbone.Marionette.Application();
 NuxeoUploadApp.on("start", function(options){
   logger.info('application starting');
 
+  /*
+   *  nuxeo config
+           .nuxeo-config #nuxeo_server #nuxeo_token #auth_token_link
+   */
+
+  // poor man's data binding
+  $('#auth_token_link').on('click', function(event, baseURL) {
+    // open a window that is big enough for shibboleth
+    var new_win = gui.Window.open(
+      url.resolve(
+        $('#nuxeo_server').val(),
+        path.join('nuxeo', nuxeoupload.get_auth_token_link())
+      )
+    );
+  });
+
   // model for configuration object
   var ConfigModel = Backbone.Model.extend({
     localStorage: new Backbone.LocalStorage("nuxeo_uploader_config"),
     defaults: {
-      nuxeoServer: '',
+      nuxeoServer: 'http://localhost:8080/nuxeo',
       nuxeoToken: '',
       id: 'config'
     }
@@ -36,17 +53,17 @@ NuxeoUploadApp.on("start", function(options){
     el: ".nuxeo-config",
     bindings: {
       "input#nuxeo_server": "value:nuxeoServer,events:['keyup']",
-      "input#nuxeo_token": "value:nuxeoToken,events:['keyup']" //,
-      // "#auth_token_link": "text:lastName"
+      "input#nuxeo_token": "value:nuxeoToken,events:['keyup']"
+      // broke --> #auth_token_link bound in HTML data-bind="attr:{href:authTokenLink}
     },
     initialize: function() {
       this.model.fetch();
     },
     events: {
-      "keyup #nuxeo_server": "onAdd"
+      "keyup #nuxeo_server": "onAdd",
+      "keyup #nuxeo_token": "onAdd"
     },
     onAdd: function(e){
-      debugger;
       this.model.save({id: 'config'});
     }
   });
@@ -54,9 +71,9 @@ NuxeoUploadApp.on("start", function(options){
 
   // set up nuxeo client connection
   var client = new nuxeo.Client({
-    baseURL: 'http://localhost:8080/nuxeo/',
+    baseURL: configModel.attributes.nuxeoServer,
     auth: { method: 'token' },
-    headers: { 'X-Authentication-Token': process.env.NUXEO_TOKEN }
+    headers: { 'X-Authentication-Token': configModel.attributes.nuxeoToken }
   });
 
   /*
@@ -189,23 +206,6 @@ NuxeoUploadApp.on("start", function(options){
     $('#upload').addClass('btn-primary');
   });
 
-  /*
-   *  Nuxeo Folders
-   */
-
-  $('#select_nuxeo').click(function () {
-  });
-
-  /*
-   *  nuxeo config
-           .nuxeo-config #nuxeo_server #nuxeo_token #auth_token_link
-   */
-
-  $('#auth_token_link').on('click', function(event, baseURL) {
-    var new_win = gui.Window.open($('#nuxeo_server').val() +
-                                  path.join('/nuxeo',
-                                            nuxeoupload.get_auth_token_link()));
-  });
 
   /*
    *  nuxeo status
