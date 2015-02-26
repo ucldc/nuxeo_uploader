@@ -47,6 +47,11 @@ NuxeoUploadApp.on("start", function(options){
       nuxeoServer: 'http://localhost:8080/nuxeo',
       nuxeoToken: '',
       id: 'config'
+    },
+    nuxeoBase: function nuxeoBase(){
+      return this.get("nuxeoServer")
+                 .replace(new RegExp("^https://(.*)\.cdlib\.org/nuxeo"),
+                          "https://$1.cdlib.org/Nuxeo");
     }
   });
   var configModel = new ConfigModel();
@@ -72,7 +77,7 @@ NuxeoUploadApp.on("start", function(options){
 
   // set up nuxeo client connection
   var client = new nuxeo.Client({
-    baseURL: configModel.attributes.nuxeoServer,
+    baseURL: configModel.nuxeoBase(),
     auth: { method: 'token' },
     headers: { 'X-Authentication-Token': configModel.attributes.nuxeoToken }
   });
