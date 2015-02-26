@@ -14,10 +14,14 @@ nuxeo = pfa(nuxeo);
  * get nuxeo status
  */
 module.exports.nx_status = function nx_status(client, cb){
-  client.connectAsync().then(function(){
+  client.connectAsync().then(function(value){
     return cb(true);
-  }, function(){
-    return cb(false);
+  }, function(reason){
+    if (reason['entity-type'] === 'login' && reason['username']) {
+      return cb(true);
+    } else {
+      return cb(false);
+    }
   });
 }
 
