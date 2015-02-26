@@ -23,34 +23,6 @@ var NuxeoUploadApp = new Backbone.Marionette.Application();
 NuxeoUploadApp.on("start", function(options){
   logger.info('application starting');
 
- /*
-  *  set up Models and Views remote folder
-  */
-
-  var NuxeoFolderView = Backbone.View.extend({
-    tagName: "option",
-    initialize: function() {
-      this.$el.text( this.model.get("label") );
-    }
-  });
-
-  var NuxeoFolderCollection = Backbone.Collection.extend({
-    model: Backbone.Model
-  });
-
-  var NuxeoFolderView = Backbone.Epoxy.View.extend({
-    el: "#select_nuxeo",
-    itemView: NuxeoFolderView,
-
-    initialize: function() {
-      this.collection = new NuxeoFolderCollection();
-      this.collection.reset(_(nuxeoupload.writable_folderish()).map(function(x) {
-        return { label: x };
-      }));
-    }
-  });
-
-  var folderView = new NuxeoFolderView();
 
   /*
    *  nuxeo config
@@ -104,6 +76,34 @@ NuxeoUploadApp.on("start", function(options){
     auth: { method: 'token' },
     headers: { 'X-Authentication-Token': configModel.attributes.nuxeoToken }
   });
+
+ /*
+  *  set up Models and Views remote folder
+  */
+  var NuxeoFolderView = Backbone.View.extend({
+    tagName: "option",
+    initialize: function() {
+      this.$el.text( this.model.get("label") );
+    }
+  });
+  var NuxeoFolderCollection = Backbone.Collection.extend({
+    model: Backbone.Model
+  });
+  var NuxeoFolderView = Backbone.Epoxy.View.extend({
+    el: "#select_nuxeo",
+    itemView: NuxeoFolderView,
+    initialize: function(client) {
+      this.collection = new NuxeoFolderCollection();
+      var that = this;
+      nuxeoupload.writable_folderish(client).then(function(folders) {
+        that.collection.reset(_.map(folders, function(x) {
+          return {label: x};
+        }));
+      });
+    }
+  });
+  var folderView = new NuxeoFolderView(client);
+
   /*
    *  set up Models and Views for file processing
    */
@@ -191,10 +191,12 @@ NuxeoUploadApp.on("start", function(options){
       var fileView = new FileView({
         model: file
       });
-      nuxeoupload.upload(client,
-                      { file: file.attributes.path,
-                        folder: '/default-domain/workspaces/test' },
-                      function(s){logger.info(s);});
+      nuxeoupload.createDocumentFromFile(
+        client,
+        file.attributes.path,
+        $('select').val(),
+        function(s){logger.info(s);}
+      );
       $(this.el).append(fileView.render().el);
     },
     removeItem: function(file){
@@ -239,6 +241,8 @@ NuxeoUploadApp.on("start", function(options){
         .html('ok');
       // enable folder selection when connection is set up
       $('#select_nuxeo')
+        .removeClass('disabled');
+      $('#upload')
         .removeClass('disabled');
     } else {
       $('#nx_status')
