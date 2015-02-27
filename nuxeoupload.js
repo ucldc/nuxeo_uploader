@@ -8,10 +8,12 @@ var pfa = require("bluebird").promisifyAll;
 var path = require('path');
 var os = require('os');
 var _ = require('underscore');
+var logger = require('./logs');
 nuxeo = pfa(nuxeo);
 
+
 /*
- * get nuxeo status
+ * get nuxeo status and run callback(true|false)
  */
 module.exports.nx_status = function nx_status(client, cb){
   client.connectAsync().then(function(value){
@@ -25,17 +27,16 @@ module.exports.nx_status = function nx_status(client, cb){
   });
 }
 
+
 /*
- * get writable locations
+ * get writable locations (returns Promise)
  */
 
 module.exports.writable_folderish = function writable_folderish(client){
   // find folders the user can write to
   // "Since Nuxeo 6.0-HF06 or Nuxeo 7.2 you can use ecm:acl"
   // http://doc.nuxeo.com/display/NXDOC/NXQL
-  var nxql = 'select * from Document' +
-             ' WHERE ecm:acl/*1/permission' +
-             ' IN ("ReadWrite", "ReadRemove", "Everything")';
+  var nxql = 'select * from Organization';
 
   return new Promise(function(resolve, reject){
     client.request('/').schema(['dublincore', 'file'])
@@ -53,12 +54,14 @@ module.exports.writable_folderish = function writable_folderish(client){
   });
 }
 
+
 /*
- * upload a file to Nuxeo
+ * upload a file to Nuxeo and run callback(file, data)
  */
 module.exports.upload = function upload(client, params, callback) {
-  var stats = fs.statSync(params.file);
-  var file = rest.file(params.file, null, stats.size, null, null);
+  var bb_file = params.file;
+  var stats = fs.statSync(params.file.attributes.path);
+  var file = rest.file(params.file.attributes.path, null, stats.size, null, null);
 
   var uploader = client.operation('FileManager.Import')
     .context({ currentDocument: params.folder })
@@ -71,53 +74,20 @@ module.exports.upload = function upload(client, params, callback) {
       if (error) {
         throw error;
       }
+      /* logger.info(data.entries[0].uid, data.entries[0].path);
       if (!data.entries.length) {
         console.log(file, data);
         throw new Error('Upload/execute returned w/o errors, but `entries` is empty '
                          + file.path );
-      }
-      console.log(data.entries[0].uid, data.entries[0].path);
+      } */
+      callback(bb_file, file, data);
     });
   });
 }
 
-// function to create documents from files
-module.exports.createDocumentFromFile = function(client, file, remotePath, callback) {
-  var operation = client.operation('FileManager.Import')
-    .context({
-      currentDocument: remotePath
-    })
-    .input(rest.file(file, null, fs.statSync(file).size, null, null));
-
-  operation.execute(function(err, data, response) {
-    if (err) {
-      callback(err, file, null);
-    } else {
-      callback(null, file, data);
-    }
-  })
-};
-
-// function to create folders
-module.exports.createFolder = function(dir, remotePath, folderishType, callback) {
-  client.document(remotePath).create({
-    type: folderishType,
-    name: path.basename(dir),
-    properties: {
-      "dc:title": path.basename(dir)
-    }
-  }, function(err, folder) {
-    if (err) {
-      callback(err, dir, null);
-    } else {
-      callback(null, dir, folder);
-    }
-  });
-};
-
 
 /*
- * get auth token from Nuxeo server.
+ * return URL to get auth token from Nuxeo server.
  */
 module.exports.get_auth_token_link = function get_auth_token_link() {
   return 'authentication/token' +
@@ -126,6 +96,7 @@ module.exports.get_auth_token_link = function get_auth_token_link() {
          '&deviceDescription='  + encodeURIComponent("") +
          '&permission=rw';
 }
+
 
 /*
  * if this is running as a script

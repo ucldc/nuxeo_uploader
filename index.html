@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
   <script type="text/javascript" src="node_modules/jquery/dist/jquery.js"></script>
@@ -49,31 +50,34 @@
             <h1>Connection Configuration</h1>
               <form class="form-horizontal">
                 <div class="form-group">
+                  <!-- url -->
                   <label for="nuxeo_server" class="col-sm-3 control-label">Nuxeo Server</label>
                   <div class="col-sm-9">
                     <input type="url" class="form-control" id="nuxeo_server">
                   </div>
                 </div>
+                <!-- sign in for token (hidden when connected) -->
                 <div class="form-group">
                   <div class="col-sm-9 col-sm-offset-3">
                     <a id="auth_token_link">Sign-in and get a Nuxeo Access Token for this computer</a>
-                    <div>A new window will open, authenticate using Shibboleth, copy
-                      the access token and paste it into the form input above.
-                      [change to "Delete Nuxeo Access Token and unregister this client" if a token is saved]
-                    </div>
                   </div>
                 </div>
+                <!-- token -->
                 <div class="form-group">
                   <label for="nuxeo_token" class="col-sm-3 control-label">Nuxeo Token</label>
                   <div class="col-sm-9">
                     <input type="password" class="form-control" id="nuxeo_token">
                   </div>
                 </div>
-                <div class="form-group">
+                <!-- -->
+		TODO: "path filter" (currently hard-coded to
+		'/asset-library/') and "skip re-upload" (default:
+		true) config options
+                <!-- div class="form-group">
                   <div class="col-sm-9 col-sm-offset-3">
                   Test Nuxeo Connection
                   </div>
-                </div>
+                </div -->
               </form>
             </div>
           </div>

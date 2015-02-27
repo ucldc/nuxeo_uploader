@@ -75,7 +75,7 @@ NuxeoUploadApp.on("start", function(options){
   });
   var configView = new ConfigView({model: configModel});
 
-  // set up nuxeo client connection
+  // set up nuxeo client connection (now that we have config)
   var client = new nuxeo.Client({
     baseURL: configModel.nuxeoBase(),
     auth: { method: 'token' },
@@ -102,7 +102,9 @@ NuxeoUploadApp.on("start", function(options){
       var that = this;
       nuxeoupload.writable_folderish(client).then(function(folders) {
         that.collection.reset(_.map(folders, function(x) {
-          return {label: x};
+          return {
+            label: x.replace(new RegExp('^/asset-library/'),
+                             '') };
         }));
       });
     }
@@ -169,6 +171,29 @@ NuxeoUploadApp.on("start", function(options){
     }
   });
 
+  // View for finished files
+  var FinishedListView = Backbone.View.extend({
+    el: $('#nuxeo .panel-body'),
+    initialize: function(){
+      _.bindAll(this, 'render', 'appendItem');
+
+      this.collection = new FinishedList();
+      this.collection.bind('add', this.appendItem);
+      this.collection.bind('remove', this.removeItem);
+
+      this.counter = 0;
+      // this.render();
+    },
+    appendItem: function(file){
+      var fileView = new FileView({
+        model: file
+      });
+      $(this.el).append(fileView.render().el);
+    },
+  });
+
+  var finishedListView = new FinishedListView();
+
   // View for in progress files
   var UploadingListView = Backbone.View.extend({
     el: $('#progress .panel-body'),
@@ -185,6 +210,7 @@ NuxeoUploadApp.on("start", function(options){
     // add an array of files
     addFiles: function(e){
       var self = this;
+      console.log(e);
       _(e).each(function(item) {
         self.counter++;
         var file = new File;
@@ -193,14 +219,23 @@ NuxeoUploadApp.on("start", function(options){
       });
     },
     appendItem: function(file){
+      var me = this;
       var fileView = new FileView({
         model: file
       });
-      nuxeoupload.createDocumentFromFile(
+      // upload when it is added to this collection
+      nuxeoupload.upload(
         client,
-        file.attributes.path,
-        $('select').val(),
-        function(s){logger.info(s);}
+        { file: file,
+          folder: '/asset-library/' + $('select').val()
+        },
+        // callback for when its uploaded, move it to the next collection
+        function(bb_file, file, data){
+          console.log('upload callback');
+          console.log(bb_file, data);
+          me.collection.remove(bb_file);
+          finishedListView.collection.add(bb_file);
+        }
       );
       $(this.el).append(fileView.render().el);
     },
@@ -208,15 +243,10 @@ NuxeoUploadApp.on("start", function(options){
       $(this.el).remove();
     }
   });
-
-  // View for finished files
-  var FinishedListView = Backbone.View.extend({
-    el: $('#nuxeo .panel-body'),
-  });
+  var uploadingListView = new UploadingListView();
 
   var localListView = new LocalListView();
-  var uploadingListView = new UploadingListView();
-  var finishedListView = new FinishedListView();
+
 
   /*
    *  Select files for upload
@@ -237,7 +267,7 @@ NuxeoUploadApp.on("start", function(options){
 
 
   /*
-   *  nuxeo status
+   *  nx_status fires callback if the connection is okay
    */
   nuxeoupload.nx_status(client, function(it_is_up) {
     if (it_is_up) {
@@ -245,10 +275,9 @@ NuxeoUploadApp.on("start", function(options){
         .addClass('glyphicon glyphicon-ok text-success')
         .html('ok');
       // enable folder selection when connection is set up
-      $('#select_nuxeo')
-        .removeClass('disabled');
-      $('#upload')
-        .removeClass('disabled');
+      $('#select_nuxeo').removeClass('disabled');
+      $('#upload').removeClass('disabled');
+      $('#auth_token_link').hide('');
     } else {
       $('#nx_status')
          .addClass('glyphicon glyphicon-remove text-danger')
@@ -257,24 +286,18 @@ NuxeoUploadApp.on("start", function(options){
   });
 
   /*
-   *  Uploading files
+   *  Upload files
    */
   $('#upload').click(function () {
-    localListView.collection.each(function(file) {
-      if (file === undefined) { return; }
-      logger.info('log to file' + file);
-      localListView.collection.remove(file);
+    var $btn = $(this).button('uploading files to Nuxeo');
+    while(localListView.collection.length) {
+      var file = localListView.collection.pop();
+      logger.debug(file.attributes);
       uploadingListView.collection.add(file.attributes);
-    });
-    $(this).button('loading');
+    }
+    // $btn.button('reset')
     // new Notification("Upload Failed!  Not implimented yet");
   });
-
-
-  /*
-   *  Files uploaded
-   */
-
 });
 
 NuxeoUploadApp.start();
