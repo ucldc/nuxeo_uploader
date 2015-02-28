@@ -1,5 +1,6 @@
 'use strict';
 var path = require('path');
+var EventEmitter = require('events').EventEmitter;
 var Promise = require('bluebird');
 var nuxeo = require('nuxeo');
 var rest = require('nuxeo/node_modules/restler');
@@ -82,7 +83,8 @@ NuxeoUploadApp.on("start", function(options){
       nuxeoupload.writable_folderish(client, re)
         .then(function(folders) {
           that.collection.reset(_.map(folders, function(x) {
-            return { label: x.replace(re, '') };
+            return { label: x.replace(re, ''),
+                     value: x };
           }));
         });
     }
@@ -139,8 +141,22 @@ NuxeoUploadApp.on("start", function(options){
 
 
   /**
-   *  Interactions / jQuery
+   *  Interactions / jQuery / emitters / callbacks that change HTML
    */
+  var emitter = new EventEmitter();
+
+  emitter.on('canStartYet', function(e) {
+    if ($('input[type=file]')[0].files.length > 0
+        &&
+        $('#select_nuxeo select').val() !== ''
+    ) {
+      $('#upload').addClass('btn-primary');
+      $('#upload').removeClass('disabled');
+    } else {
+      $('#upload').removeClass('btn-primary');
+      $('#upload').addClass('disabled');
+    }
+  });
 
 
   /*
@@ -168,13 +184,21 @@ NuxeoUploadApp.on("start", function(options){
     this.value = null;
   });
   input.on('change', function () {
+    if (this.files.length > 0) {
+      emitter.emit('canStartYet');
+    }
     fileListView.addFiles(this.files);
     this.disabled = true;
     $(this).addClass('btn-default').removeClass('btn-primary');
-    $('#upload').addClass('btn-primary');
     $('#local').DataTable();
   });
 
+  /* select directory to upload to
+   */
+  var folder = $('#select_nuxeo select');
+  folder.on('change', function () {
+    emitter.emit('canStartYet');
+  });
 
   /*
    *  nx_status fires callback if the connection is okay
@@ -186,7 +210,6 @@ NuxeoUploadApp.on("start", function(options){
         .html('ok');
       // enable folder selection when connection is set up
       $('#select_nuxeo').removeClass('disabled');
-      $('#upload').removeClass('disabled');
       $('#auth_token_link').hide('');
     } else {
       $('#nx_status')
@@ -200,12 +223,12 @@ NuxeoUploadApp.on("start", function(options){
    *  Upload files
    */
   $('#upload').click(function () {
+    emitter.emit('upload triggered', fileListView);
     var $btn = $(this).button('uploading files to Nuxeo');
-    /* while(fileListView.collection.length) {
-      var file = localListView.collection.pop();
-      logger.debug(file.attributes);
-    } */
-    // $btn.button('reset')
+    fileListView.collection.each(function(model){
+      console.log(model);
+    });
+    $btn.button('reset')
     // new Notification("Upload Failed!  Not implimented yet");
   });
 });
