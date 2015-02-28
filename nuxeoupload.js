@@ -32,11 +32,13 @@ module.exports.nx_status = function nx_status(client, cb){
  * get writable locations (returns Promise)
  */
 
-module.exports.writable_folderish = function writable_folderish(client){
+module.exports.writable_folderish = function writable_folderish(client, filter){
   // find folders the user can write to
   // "Since Nuxeo 6.0-HF06 or Nuxeo 7.2 you can use ecm:acl"
   // http://doc.nuxeo.com/display/NXDOC/NXQL
   var nxql = 'select * from Organization';
+
+  var re = new RegExp('^' + filter);
 
   return new Promise(function(resolve, reject){
     client.request('/').schema(['dublincore', 'file'])
@@ -47,8 +49,8 @@ module.exports.writable_folderish = function writable_folderish(client){
         var out = [];
         if (error) { reject(error); }
         out = _.map(data.entries, function(x) {
-          return x.path;
-        });
+          if (re.test(x.path)) { return x.path; }
+        }).filter( function(val) { return val !== undefined; } );
         resolve(out);
       });
   });
