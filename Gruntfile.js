@@ -189,7 +189,7 @@ module.exports = function (grunt) {
       },
       finalWindowsApp: {
         options: {
-          archive: '<%= config.distWin %>/nodeWebkitSample.zip'
+          archive: '<%= config.distWin %>/uclNuxeoUpload.zip'
         },
         files: [{
           expand: true,
@@ -202,13 +202,13 @@ module.exports = function (grunt) {
       macApp32: {
         files: [{
           src: '<%= config.distMac32 %>/node-webkit.app',
-          dest: '<%= config.distMac32 %>/nodeWebkitSample.app'
+          dest: '<%= config.distMac32 %>/uclNuxeoUpload.app'
         }]
       },
       macApp64: {
         files: [{
           src: '<%= config.distMac64 %>/node-webkit.app',
-          dest: '<%= config.distMac64 %>/nodeWebkitSample.app'
+          dest: '<%= config.distMac64 %>/uclNuxeoUpload.app'
         }]
       },
       zipToApp: {
@@ -222,7 +222,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('chmod32', 'Add lost Permissions.', function () {
     var fs = require('fs'),
-      path = config.distMac32 + '/nodeWebkitSample.app/Contents/';
+      path = config.distMac32 + '/uclNuxeoUpload.app/Contents/';
     fs.chmodSync(path + 'Frameworks/node-webkit Helper EH.app/Contents/MacOS/node-webkit Helper EH', '555');
     fs.chmodSync(path + 'Frameworks/node-webkit Helper NP.app/Contents/MacOS/node-webkit Helper NP', '555');
     fs.chmodSync(path + 'Frameworks/node-webkit Helper.app/Contents/MacOS/node-webkit Helper', '555');
@@ -231,7 +231,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('chmod64', 'Add lost Permissions.', function () {
     var fs = require('fs'),
-      path = config.distMac64 + '/nodeWebkitSample.app/Contents/';
+      path = config.distMac64 + '/uclNuxeoUpload.app/Contents/';
     fs.chmodSync(path + 'Frameworks/node-webkit Helper EH.app/Contents/MacOS/node-webkit Helper EH', '555');
     fs.chmodSync(path + 'Frameworks/node-webkit Helper NP.app/Contents/MacOS/node-webkit Helper NP', '555');
     fs.chmodSync(path + 'Frameworks/node-webkit Helper.app/Contents/MacOS/node-webkit Helper', '555');
@@ -265,7 +265,7 @@ module.exports = function (grunt) {
     concat([
       'buildTmp/nw.exe',
       'buildTmp/app.nw'
-    ], 'buildTmp/nodeWebkitSample.exe', function () {
+    ], 'buildTmp/uclNuxeoUpload.exe', function () {
       var fs = require('fs');
       fs.unlink('buildTmp/app.nw', function (error, stdout, stderr) {
         if (stdout) {
@@ -372,7 +372,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('dmg', 'Create dmg from previously created app folder in dist.', function () {
     var done = this.async();
-    var createDmgCommand = 'resources/mac/package.sh "nodeWebkitSample"';
+    var createDmgCommand = 'resources/mac/package.sh "uclNuxeoUpload"';
     require('child_process').exec(createDmgCommand, function (error, stdout, stderr) {
       var result = true;
       if (stdout) {

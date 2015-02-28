@@ -5,4 +5,4 @@ bower_components/
 tmp/
 buildTmp/
 dist/
-resources/
+resources/node-webkit
