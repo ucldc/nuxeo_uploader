@@ -31,23 +31,20 @@ module.exports.nx_status = function nx_status(client, cb){
 /*
  * get writable locations (returns Promise)
  */
-
-module.exports.writable_folderish = function writable_folderish(client, re){
-  // find folders the user can write to
-  // "Since Nuxeo 6.0-HF06 or Nuxeo 7.2 you can use ecm:acl"
-  // http://doc.nuxeo.com/display/NXDOC/NXQL
-  var nxql = 'select * from Organization';
-
+module.exports.writable_folderish = function writable_folderish(client, regex){
   return new Promise(function(resolve, reject){
     client.request('/').schema(['dublincore', 'file'])
       .path('@search')
       .query({
-        'query': nxql
+        // select all Organization documents a.k.a. "Project Folder" in the UI
+        'query': 'select * from Organization'
       }).execute(function(error, data, responce) {
+        // filter out directories that don't match supplied regex
+        // ?? does this handel paging results?
         var out = [];
         if (error) { reject(error); }
         out = _.map(data.entries, function(x) {
-          if (re.test(x.path)) { return x.path; }
+          if (regex.test(x.path)) { return x.path; }
         }).filter( function(val) { return val !== undefined; } );
         resolve(out);
       });
