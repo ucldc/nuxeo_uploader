@@ -8,22 +8,18 @@ var gui = require('nw.gui');
 var nuxeoupload = require('./nuxeoupload');
 var logger = require('./logs');
 
-// https://github.com/nwjs/nw.js/issues/1955
-var win = gui.Window.get();
-var nativeMenuBar = new gui.Menu({ type: "menubar" });
-try {
-  nativeMenuBar.createMacBuiltin("Nuxeo Uploader");
-  win.menu = nativeMenuBar;
-} catch (ex) {
-  logger.warn(ex.message);
-}
 
+/**
+ * backbone / marionette / epoxy application
+ */
 var NuxeoUploadApp = new Backbone.Marionette.Application();
-
 NuxeoUploadApp.on("start", function(options){
   logger.info('application starting');
 
-  // model for configuration object
+
+  /*
+   * model and view for configuration object
+   */
   var ConfigModel = Backbone.Model.extend({
     localStorage: new Backbone.LocalStorage("nuxeo_uploader_config"),
     defaults: {
@@ -64,16 +60,16 @@ NuxeoUploadApp.on("start", function(options){
   });
   var configView = new ConfigView({model: configModel});
 
+
+ /*
+  *  set up Models and Views remote folder
+  */
   // set up nuxeo client connection (now that we have config)
   var client = new nuxeo.Client({
     baseURL: configModel.nuxeoBase(),
     auth: { method: 'token' },
     headers: { 'X-Authentication-Token': configModel.attributes.nuxeoToken }
   });
-
- /*
-  *  set up Models and Views remote folder
-  */
   var NuxeoFolderView = Backbone.View.extend({
     tagName: "option",
     initialize: function() {
@@ -83,7 +79,6 @@ NuxeoUploadApp.on("start", function(options){
   var NuxeoFolderCollection = Backbone.Collection.extend({
     model: Backbone.Model
   });
-
   var NuxeoFolderCollectionView = Backbone.Epoxy.View.extend({
     el: "#select_nuxeo",
     itemView: NuxeoFolderView,
@@ -101,17 +96,16 @@ NuxeoUploadApp.on("start", function(options){
   });
   var folderView = new NuxeoFolderCollectionView(client);
 
+
   /*
    *  set up Models and Views for file processing
    */
-
   var FileModel = Backbone.Model.extend({
     defaults: {
       state: 'selected'
     }
   });
-  var fileModel = new FileModel({path: 'foo'});
-
+  // set up a cell class for each column
   var cols = ['state', 'filename', 'lastmodified', 'size'];
   var tmpl = _.template("<td class='<%= css %>'></td>");
   cols = cols.map(function(x) {
@@ -126,15 +120,10 @@ NuxeoUploadApp.on("start", function(options){
       '.filename': 'text:path',
       '.size': 'text:size'
     },
-    initialize: function(){
-      console.log('hey');
-    },
   });
-
   var FileCollection = Backbone.Collection.extend({
     model: FileModel
   });
-
   var FileListView = Backbone.Epoxy.View.extend({
     el: '#local',
     itemView: FileView,
@@ -153,13 +142,17 @@ NuxeoUploadApp.on("start", function(options){
       });
     },
   });
-  var fileListView = new FileListView({model: fileModel});
+  var fileListView = new FileListView();
 
-  /*
-   *  nuxeo config
-           .nuxeo-config #nuxeo_server #nuxeo_token #auth_token_link
+
+  /**
+   *  Interactions / jQuery
    */
 
+
+  /*
+   *  configuration / get token after shibboleth
+   */
   // poor man's data binding
   $('#auth_token_link').on('click', function(event, baseURL) {
     // open a window that is big enough for shibboleth
@@ -171,10 +164,10 @@ NuxeoUploadApp.on("start", function(options){
     );
   });
 
+
   /*
    *  Select files for upload
    */
-
   // detect when user has selected files
   // http://stackoverflow.com/a/12102992
   var input = $('input[type=file]');
@@ -209,6 +202,7 @@ NuxeoUploadApp.on("start", function(options){
     }
   });
 
+
   /*
    *  Upload files
    */
@@ -224,3 +218,17 @@ NuxeoUploadApp.on("start", function(options){
 });
 
 NuxeoUploadApp.start();
+
+/*
+ * applicaiton menu for node-webkit (nw.js)
+ */
+
+// https://github.com/nwjs/nw.js/issues/1955
+var win = gui.Window.get();
+var nativeMenuBar = new gui.Menu({ type: "menubar" });
+try {
+  nativeMenuBar.createMacBuiltin("Nuxeo Uploader");
+  win.menu = nativeMenuBar;
+} catch (ex) {
+  logger.warn(ex.message);
+}
