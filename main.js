@@ -106,11 +106,22 @@ NuxeoUploadApp.on("start", function(options){
   });
   var fileModel = new FileModel({path: 'foo'});
 
+  var cols = ['state', 'filename', 'lastmodified', 'size'];
+  var tmpl = _.template("<td class='<%= css %>'></td>");
+  cols = cols.map(function(x) {
+    return tmpl({css: x});
+  });
   var FileView = Backbone.Epoxy.View.extend({
-    tagName: 'div',
-    el: '<div><span></span></div>',
+    tagName: 'tr',
+    el: '<tr data-bind="attr:{class:state}">' + cols.join() + '</tr>',
     bindings: {
-      'span':'text:path,attr:{class:state}'
+      '.state': 'text:state',
+      '.lastmodified': 'text:lastModifiedDate',
+      '.filename': 'text:path',
+      '.size': 'text:size'
+    },
+    initialize: function(){
+      console.log('hey');
     },
   });
 
@@ -169,6 +180,7 @@ NuxeoUploadApp.on("start", function(options){
     this.disabled = true;
     $(this).addClass('btn-default').removeClass('btn-primary');
     $('#upload').addClass('btn-primary');
+    $('#local').DataTable();
   });
 
 

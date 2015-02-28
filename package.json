@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "description": "upload files to nuxeo",
   "main": "index.html",
-  "repository" : {
-    "type" : "git",
-    "url" : "https://github.com/tingletech/nuxeo_uploader.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tingletech/nuxeo_uploader.git"
   },
   "window": {
     "title": "Nuxeo File Uploader",
@@ -23,6 +23,7 @@
     "backbone.marionette": "^2.3.2",
     "bluebird": "^2.9.9",
     "bootstrap": "^3.3.2",
+    "datatables": "^1.10.5",
     "jquery": "^2.1.3",
     "node-webkit-builder": "*",
     "nuxeo": "^0.4.0",

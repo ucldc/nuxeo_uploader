@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="node_modules/datatables/media/css/jquery.dataTables.css">
   <script type="text/javascript" src="node_modules/jquery/dist/jquery.js"></script>
   <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
   <script type="text/javascript" src="node_modules/underscore/underscore.js"></script>
@@ -11,9 +12,10 @@
   <script type="text/javascript" src="node_modules/backbone.epoxy/backbone.epoxy.js"></script>
   <script type="text/javascript" src="node_modules/backbone.localstorage/backbone.localStorage.js"></script>
   <script type="text/javascript" src="node_modules/backbone.marionette/lib/backbone.marionette.js"></script>
-  <!-- script type="text/javascript" src="bower_components/nuxeo/lib/jquery/nuxeo.js"></script -->
+  <script type="text/javascript" src="node_modules/datatables/media/js/jquery.dataTables.js"></script>
   <style>
     .panel-body { padding-left: 0.2em; }
+    th { min-width: 100px; }
   </style>
 </head>
 
@@ -120,8 +122,18 @@
 
   <!-- workflow feedback -->
   <div class="row">
-    <div class="col-xs-12" style="padding-top: 1em;" id="local">
-      <div data-bind="collection:$collection"></div>
+    <div class="col-xs-12" style="padding-top: 1em;">
+      <table id="local">
+        <thead>
+          <tr>
+            <th data-sort="string">state</th>
+            <th data-sort="string">filename</th>
+            <th data-sort="string">lastmodified</th>
+            <th data-sort="int">size</th>
+          </tr>
+        </thead>
+        <tbody data-bind="collection:$collection"></tbody>
+      </table>
     </div>
   </div>
   <script type="text/javascript" src="main.js"></script>
