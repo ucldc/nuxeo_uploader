@@ -70,18 +70,11 @@ NuxeoUploadApp.on("start", function(options){
     auth: { method: 'token' },
     headers: { 'X-Authentication-Token': configModel.attributes.nuxeoToken }
   });
-  var NuxeoFolderView = Backbone.View.extend({
-    tagName: "option",
-    initialize: function() {
-      this.$el.text( this.model.get("label") );
-    }
-  });
   var NuxeoFolderCollection = Backbone.Collection.extend({
     model: Backbone.Model
   });
   var NuxeoFolderCollectionView = Backbone.Epoxy.View.extend({
-    el: "#select_nuxeo",
-    itemView: NuxeoFolderView,
+    el: "#select_nuxeo", // binding in HTML
     initialize: function(client) {
       this.collection = new NuxeoFolderCollection();
       var that = this;

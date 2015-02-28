@@ -99,7 +99,6 @@ skip if the file name is already in nuxeo
   </div>
 
   <!--  user input workflow -->
-  <!--   ①  ➝  ②  ➝  ③   -->
   <div class="row controls">
 
     <!-- file upload dialog  -->
@@ -115,7 +114,7 @@ skip if the file name is already in nuxeo
         data-toggle="modal" data-target=".bs-example-modal-lg"
         id="select_nuxeo">
         <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;
-        <select data-bind="collection:$collection"></select>
+        <select data-bind="options:$collection,optionsDefault:{label:'select nuxeo project folder...', value:''}"></select>
       </form>
 
 
