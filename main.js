@@ -29,6 +29,8 @@ NuxeoUploadApp.on("start", function(options){
     defaults: {
       nuxeoServer: 'http://localhost:8080/nuxeo',
       nuxeoToken: '',
+      pathFilter: '/asset-library/',
+      skipReupload: true,
       id: 'config'
     },
     nuxeoBase: function nuxeoBase(){
@@ -42,7 +44,9 @@ NuxeoUploadApp.on("start", function(options){
     el: ".nuxeo-config",
     bindings: {
       "input#nuxeo_server": "value:nuxeoServer,events:['keyup']",
-      "input#nuxeo_token": "value:nuxeoToken,events:['keyup']"
+      "input#nuxeo_token": "value:nuxeoToken,events:['keyup']",
+      "input#path_filter": "value:pathFilter,events:['keyup']",
+      "input#skip_reupload": "checked:skipReupload"
       // broke --> #auth_token_link bound in HTML data-bind="attr:{href:authTokenLink}
     },
     initialize: function() {
@@ -50,7 +54,9 @@ NuxeoUploadApp.on("start", function(options){
     },
     events: {
       "keyup #nuxeo_server": "onAdd",
-      "keyup #nuxeo_token": "onAdd"
+      "keyup #nuxeo_token": "onAdd",
+      "keyup #path_filter": "onAdd",
+      "change #skip_reupload": "onAdd"
     },
     onAdd: function(e){
       this.model.save({id: 'config'});

@@ -49,7 +49,7 @@
         aria-hidden="true">
         <div class="modal-dialog modal-md">
           <div class="modal-content">
-            <h1>Connection Configuration</h1>
+            <h1>Application Configuratoin</h1>
               <form class="form-horizontal">
                 <div class="form-group">
                   <!-- url -->
@@ -72,9 +72,19 @@
                   </div>
                 </div>
                 <!-- -->
-		TODO: "path filter" (currently hard-coded to
-		'/asset-library/') and "skip re-upload" (default:
-		true) config options
+                <div class="form-group">
+                  <label for="path_filter" class="col-sm-3 control-label">Path Filter</label>
+                  <div class="col-sm-9">
+                    <input type="text" class="form-control" id="path_filter">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="skip_reupload" class="col-sm-3 control-label">Skip Reupload</label>
+                  <div class="col-sm-9">
+                    <input type="checkbox" checked id="skip_reupload"> check for file name in target proejct folder and
+skip if the file name is already in nuxeo
+                  </div>
+                </div>
                 <!-- div class="form-group">
                   <div class="col-sm-9 col-sm-offset-3">
                   Test Nuxeo Connection
