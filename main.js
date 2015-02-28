@@ -77,7 +77,8 @@ NuxeoUploadApp.on("start", function(options){
   var NuxeoFolderCollection = Backbone.Collection.extend({
     model: Backbone.Model
   });
-  var NuxeoFolderView = Backbone.Epoxy.View.extend({
+
+  var NuxeoFolderCollectionView = Backbone.Epoxy.View.extend({
     el: "#select_nuxeo",
     itemView: NuxeoFolderView,
     initialize: function(client) {
@@ -92,37 +93,50 @@ NuxeoUploadApp.on("start", function(options){
       });
     }
   });
-  var folderView = new NuxeoFolderView(client);
+  var folderView = new NuxeoFolderCollectionView(client);
 
   /*
    *  set up Models and Views for file processing
    */
 
-  var File = Backbone.Model.extend({
+  var FileModel = Backbone.Model.extend({
     defaults: {
       state: 'selected'
     }
   });
-  var FileCollection = Backbone.Collection.extend({ model: File });
-  var FileView = Backbone.Epoxy.View.extend({});
+  var fileModel = new FileModel({path: 'foo'});
+
+  var FileView = Backbone.Epoxy.View.extend({
+    tagName: 'div',
+    el: '<div><span></span></div>',
+    bindings: {
+      'span':'text:path,attr:{class:state}'
+    },
+  });
+
+  var FileCollection = Backbone.Collection.extend({
+    model: FileModel
+  });
+
   var FileListView = Backbone.Epoxy.View.extend({
     el: '#local',
     itemView: FileView,
     initialize: function(){
       this.collection = new FileCollection();
+      return this;
     },
     addFiles: function(e) {
+      this.counter = 0;
       var that = this;
       _(e).each(function(item){
-        console.log(e);
         that.counter++;
-        var file = new File;
+        var file = new FileModel();
         file.set(item);
         that.collection.add(file);
       });
-    }
+    },
   });
-  var fileListView = new FileListView();
+  var fileListView = new FileListView({model: fileModel});
 
   /*
    *  nuxeo config
