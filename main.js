@@ -90,17 +90,13 @@ NuxeoUploadApp.on("start", function(options){
     initialize: function(client) {
       this.collection = new NuxeoFolderCollection();
       var that = this;
-      nuxeoupload.writable_folderish(client, $('#path_filter').val()).then(function(folders) {
-        that.collection.reset(_.map(folders, function(x) {
-          var re = new RegExp('^' + $('#path_filter').val());
-          if (re.test(x)) {
-            return {
-              label: x.replace('^' + $('#path_filter').val() ,
-                               '')
-            };
-          }
-        }));
-      });
+      var re = new RegExp('^' + $('#path_filter').val());
+      nuxeoupload.writable_folderish(client, re)
+        .then(function(folders) {
+          that.collection.reset(_.map(folders, function(x) {
+            return { label: x.replace(re, '') };
+          }));
+        });
     }
   });
   var folderView = new NuxeoFolderCollectionView(client);

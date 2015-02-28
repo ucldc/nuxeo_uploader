@@ -32,13 +32,11 @@ module.exports.nx_status = function nx_status(client, cb){
  * get writable locations (returns Promise)
  */
 
-module.exports.writable_folderish = function writable_folderish(client, filter){
+module.exports.writable_folderish = function writable_folderish(client, re){
   // find folders the user can write to
   // "Since Nuxeo 6.0-HF06 or Nuxeo 7.2 you can use ecm:acl"
   // http://doc.nuxeo.com/display/NXDOC/NXQL
   var nxql = 'select * from Organization';
-
-  var re = new RegExp('^' + filter);
 
   return new Promise(function(resolve, reject){
     client.request('/').schema(['dublincore', 'file'])
