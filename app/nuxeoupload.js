@@ -39,10 +39,10 @@ module.exports.writable_folderish = function writable_folderish(client, regex){
         // select all Organization documents a.k.a. "Project Folder" in the UI
         'query': 'select * from Organization'
       }).execute(function(error, data, responce) {
+        if (error) { reject(error); }
         // filter out directories that don't match supplied regex
         // ?? does this handel paging results?
         var out = [];
-        if (error) { reject(error); }
         out = _.map(data.entries, function(x) {
           if (regex.test(x.path)) { return x.path; }
         }).filter( function(val) { return val !== undefined; } );
