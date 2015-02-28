@@ -1,7 +1,7 @@
 'use strict';
 var path = require('path');
 var Promise = require('bluebird');
-var nuxeo = nuxeo || require('nuxeo');
+var nuxeo = require('nuxeo');
 var rest = require('nuxeo/node_modules/restler');
 var url = require('url');
 var gui = require('nw.gui');
