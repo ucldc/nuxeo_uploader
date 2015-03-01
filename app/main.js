@@ -167,16 +167,32 @@ NuxeoUploadApp.on("start", function(options){
    */
   var emitter = new EventEmitter();
 
+  /* 'canStartYet' events fire on certain user interactions to
+     trigger this check of the interface state so the `btn-primary` class
+     can be moved around the input elements
+  */
   emitter.on('canStartYet', function(e) {
+    // if we are ready to upload
     if ($('input[type=file]')[0].files.length > 0
         &&
         $('#select_nuxeo select').val() !== ''
     ) {
+    // make upload the primary action
       $('#upload').addClass('btn-primary');
       $('#upload').removeClass('disabled');
     } else {
       $('#upload').removeClass('btn-primary');
       $('#upload').addClass('disabled');
+    }
+    // if selecting files is the only thing left to do
+    if ($('input[type=file]')[0].files.length > 0
+        &&
+        $('#select_nuxeo select').val() === ''
+    ) {
+    // make selecting files the primary action
+      $('#select_nuxeo').addClass('btn-primary');
+    } else {
+      $('#select_nuxeo').removeClass('btn-primary');
     }
   });
 
@@ -184,7 +200,7 @@ NuxeoUploadApp.on("start", function(options){
   /*
    *  configuration / get token after shibboleth
    */
-  // poor man's data binding
+  // poor man's data binding, look up value on click
   $('#auth_token_link').on('click', function(event, baseURL) {
     // open a window that is big enough for shibboleth
     var new_win = gui.Window.open(
@@ -199,16 +215,11 @@ NuxeoUploadApp.on("start", function(options){
   /*
    *  Select files for upload
    */
-  // detect when user has selected files
-  // http://stackoverflow.com/a/12102992
+  // detect when user has selected files http://stackoverflow.com/a/12102992
   var input = $('input[type=file]');
-  input.click(function () {
-    this.value = null;
-  });
+  input.click(function () { this.value = null; });
   input.on('change', function () {
-    if (this.files.length > 0) {
-      emitter.emit('canStartYet');
-    }
+    emitter.emit('canStartYet');
     fileListView.addFiles(this.files);
     this.disabled = true;
     $(this).addClass('btn-default').removeClass('btn-primary');
@@ -217,13 +228,12 @@ NuxeoUploadApp.on("start", function(options){
 
   /* select directory to upload to
    */
-  var folder = $('#select_nuxeo select');
-  folder.on('change', function () {
+  $('#select_nuxeo select').on('change', function () {
     emitter.emit('canStartYet');
   });
 
   /*
-   *  nx_status fires callback if the connection is okay
+   *  nx_status fires callback(true|false) with connection status
    */
   nuxeoupload.nx_status(client, function(it_is_up) {
     if (it_is_up) {
@@ -232,6 +242,7 @@ NuxeoUploadApp.on("start", function(options){
         .html('ok');
       // enable folder selection when connection is set up
       $('#select_nuxeo').removeClass('disabled');
+      // won't need the auth token link again
       $('#auth_token_link').hide('');
     } else {
       $('#nx_status')
@@ -246,12 +257,13 @@ NuxeoUploadApp.on("start", function(options){
    */
   $('#upload').click(function () {
     emitter.emit('upload triggered', fileListView);
-    var $btn = $(this).button('uploading files to Nuxeo');
-    fileListView.collection.each(function(model){
-      console.log(model);
+    var $btn = $(this).button('loading');
+    $('#select_nuxeo').addClass('disabled');
+    var results = fileListView.collection.map(function(model, index, list){
+      console.log(index);
+      return model
     });
-    $btn.button('reset')
-    // new Notification("Upload Failed!  Not implimented yet");
+    console.log(results);
   });
 });
 
