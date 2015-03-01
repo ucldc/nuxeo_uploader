@@ -257,13 +257,14 @@ NuxeoUploadApp.on("start", function(options){
    */
   $('#upload').click(function () {
     emitter.emit('upload triggered', fileListView);
+    var nuxeo_directory = $('#select_nuxeo select').val();
     var $btn = $(this).button('loading');
     $('#select_nuxeo').addClass('disabled');
-    var results = fileListView.collection.map(function(model, index, list){
-      console.log(index);
-      return model
+    // map collection of files to upload promises
+    var results = fileListView.collection.map(function(fileModel, index, list){
+      return nuxeoupload.up1(client, emitter, fileModel, nuxeo_directory);
     });
-    console.log(results);
+    // console.log(results);
   });
 });
 

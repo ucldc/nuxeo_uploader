@@ -51,6 +51,39 @@ module.exports.writable_folderish = function writable_folderish(client, regex){
   });
 }
 
+/*
+ * second version of upload named `up1` for now
+ */
+module.exports.up1 = function up1(client, emitter, fileModel, nuxeo_directory){
+  console.log(client, emitter, fileModel, nuxeo_directory);
+  var filePath = fileModel.get('path');
+  var stats = fs.statSync(filePath);
+  var rfile = rest.file(filePath, null, stats.size, null, null);
+
+  var uploader = client.operation('FileManager.Import')
+    .context({ currentDocument: nuxeo_directory })
+    .uploader();
+
+  uploader.uploadFile(rfile, function(fileIndex, file, timeDiff) {
+    uploader.execute({
+      path: path.basename(filePath)
+    }, function (error, data) {
+      if (error) {
+        fileModel.set('state', 'error');
+        logger.error('uploadError', error);
+        console.log('uploadError', error);
+        emitter.emit('uploadError', error)
+      } else {
+        fileModel.set('state', 'success');
+        logger.info('uploadOk', data);
+        console.log('uploadOk', data);
+        emitter.emit('uploadOk', data)
+      }
+    });
+  });
+  console.log(uploader);
+}
+
 
 /*
  * upload a file to Nuxeo and run callback(file, data)
@@ -71,12 +104,6 @@ module.exports.upload = function upload(client, params, callback) {
       if (error) {
         throw error;
       }
-      /* logger.info(data.entries[0].uid, data.entries[0].path);
-      if (!data.entries.length) {
-        console.log(file, data);
-        throw new Error('Upload/execute returned w/o errors, but `entries` is empty '
-                         + file.path );
-      } */
       callback(bb_file, file, data);
     });
   });
