@@ -196,6 +196,28 @@ NuxeoUploadApp.on("start", function(options){
     }
   });
 
+  emitter.on('batchStarted', function(batchId) { });
+  emitter.on('batchFinished', function(batchId) {
+    console.log('batch finished');
+    // $('#upload').button('reset');
+    // $('#upload').prop('disabled', true);
+    new Notification("Batch finished");
+  });
+  emitter.on('uploadStarted', function(fileIndex, file) {
+    fileListView.collection.findWhere({path: file.path}).set('state', 'uploading');
+    var waiting = summaryModel.get('waiting');
+    var uploading = summaryModel.get('uploading');
+    summaryModel.set('waiting', waiting - 1)
+    summaryModel.set('uploading', uploading + 1)
+  });
+  emitter.on('uploadFinished', function(fileIndex, file, time) {
+    var uploading = summaryModel.get('uploading');
+    var success = summaryModel.get('success');
+    summaryModel.set('uploading', uploading - 1)
+    summaryModel.set('success', success + 1)
+    fileListView.collection.findWhere({path: file.path}).set('state', 'success')
+  });;
+
 
   /*
    *  configuration / get token after shibboleth
@@ -260,11 +282,16 @@ NuxeoUploadApp.on("start", function(options){
     var nuxeo_directory = $('#select_nuxeo select').val();
     var $btn = $(this).button('loading');
     $('#select_nuxeo').addClass('disabled');
-    // map collection of files to upload promises
-    var results = fileListView.collection.map(function(fileModel, index, list){
-      return nuxeoupload.up1(client, emitter, fileModel, nuxeo_directory);
+
+    fileListView.collection.each(function(fileModel) {
+      fileModel.set('state', 'waiting');
     });
-    // console.log(results);
+
+    summaryModel.set('waiting', fileListView.collection.length);
+
+    var x = nuxeoupload.runBatch(client, emitter, fileListView.collection, nuxeo_directory, function(){
+    });
+
   });
 });
 

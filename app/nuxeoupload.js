@@ -51,37 +51,49 @@ module.exports.writable_folderish = function writable_folderish(client, regex){
   });
 }
 
+
 /*
- * second version of upload named `up1` for now
+ * run whole batch of files
  */
-module.exports.up1 = function up1(client, emitter, fileModel, nuxeo_directory){
-  console.log(client, emitter, fileModel, nuxeo_directory);
-  var filePath = fileModel.get('path');
-  var stats = fs.statSync(filePath);
-  var rfile = rest.file(filePath, null, stats.size, null, null);
+module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_directory, callback) {
 
   var uploader = client.operation('FileManager.Import')
     .context({ currentDocument: nuxeo_directory })
-    .uploader();
-
-  uploader.uploadFile(rfile, function(fileIndex, file, timeDiff) {
-    uploader.execute({
-      path: path.basename(filePath)
-    }, function (error, data) {
-      if (error) {
-        fileModel.set('state', 'error');
-        logger.error('uploadError', error);
-        console.log('uploadError', error);
-        emitter.emit('uploadError', error)
-      } else {
-        fileModel.set('state', 'success');
-        logger.info('uploadOk', data);
-        console.log('uploadOk', data);
-        emitter.emit('uploadOk', data)
-      }
+    // nuxeo's jquery version of the API has more callbacks, but I can't get it to work
+    .uploader({
+      batchStartedCallback: function(batchId) { emitter.emit('batchStarted', batchId); },
+      batchFinishedCallback: function(batchId) { emitter.emit('batchFinished', batchId); },
+      uploadStartedCallback: function(fileIndex, file) { emitter.emit('uploadStarted', fileIndex, file) },
+      uploadFinishedCallback: function(fileIndex, file, time) { emitter.emit('uploadFinished', fileIndex, file, time); }
     });
+
+  function up1(fileModel) {
+    var filePath = fileModel.get('path');
+    var stats = fs.statSync(filePath);
+    var rfile = rest.file(filePath, null, stats.size, null, null);
+
+    return uploader.uploadFile(rfile, function(fileIndex, file, timeDiff) {
+      uploader.execute({
+        path: path.basename(filePath)
+      }, function (error, data) {
+        if (error) {
+          fileModel.set('state', 'error');
+          logger.error('uploadError', error);
+          emitter.emit('uploadError', error)
+        } else {
+          fileModel.set('state', 'success');
+          logger.info('uploadOk', data);
+          emitter.emit('uploadOk', data)
+        }
+      });
+    });
+  };
+
+  var out = collection.map(function(fileModel, index, list){
+    return up1(fileModel);
   });
-  console.log(uploader);
+
+  callback(out);
 }
 
 
