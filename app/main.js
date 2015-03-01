@@ -17,6 +17,27 @@ var NuxeoUploadApp = new Backbone.Marionette.Application();
 NuxeoUploadApp.on("start", function(options){
   logger.info('application starting');
 
+  var SummaryModel = Backbone.Model.extend({
+    defaults: {
+      selected: 0,
+      waiting: 0,
+      uploading: 0,
+      success: 0,
+      problems: []
+    }
+  });
+  var summaryModel = new SummaryModel();
+  var SummaryView = Backbone.Epoxy.View.extend({
+    el: '#summary',
+    bindings: {
+      'div#selected': 'text:selected',
+      'div#waiting': 'text:waiting',
+      'div#uploading': 'text:uploading',
+      'div#success': 'text:success',
+      'div#problems': 'text:length(problems)'
+    }
+  });
+  var summaryView = new SummaryView({model: summaryModel});
 
   /*
    * model and view for configuration object
@@ -135,6 +156,7 @@ NuxeoUploadApp.on("start", function(options){
         file.set(item);
         that.collection.add(file);
       });
+      summaryModel.set('selected', this.counter);
     },
   });
   var fileListView = new FileListView();
