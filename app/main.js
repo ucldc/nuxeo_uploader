@@ -233,8 +233,8 @@ NuxeoUploadApp.on("start", function(options){
     // open a window that is big enough for shibboleth
     var new_win = gui.Window.open(
       url.resolve(
-        $('#nuxeo_server').val(),
-        path.join('nuxeo', nuxeoupload.get_auth_token_link())
+        $('#nuxeo_server').val().replace(/\/$/, ""),
+        ['nuxeo', nuxeoupload.get_auth_token_link()].join('/')
       )
     );
   });
