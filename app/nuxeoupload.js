@@ -79,7 +79,8 @@ module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_d
         if (error) {
           fileModel.set('state', 'error');
           logger.error('uploadError', error);
-          emitter.emit('uploadError', error)
+          console.log('uploadError', error);
+          emitter.emit('uploadError', error, fileModel)
         } else {
           fileModel.set('state', 'success');
           logger.info('uploadOk', data);

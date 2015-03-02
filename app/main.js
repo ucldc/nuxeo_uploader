@@ -216,7 +216,13 @@ NuxeoUploadApp.on("start", function(options){
     summaryModel.set('uploading', uploading - 1)
     summaryModel.set('success', success + 1)
     fileListView.collection.findWhere({path: file.path}).set('state', 'success')
-  });;
+  });
+
+  emitter.on('uploadError', function(error, fileModel) {
+    var success = summaryModel.get('success');
+    summaryModel.set('success', success - 1)
+    summaryModel.get('problems').push({ error: error, fileModel: fileModel});
+  });
 
 
   /*
