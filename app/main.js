@@ -2,12 +2,13 @@
 var path = require('path');
 var EventEmitter = require('events').EventEmitter;
 var Promise = require('bluebird');
-var nuxeo = require('nuxeo');
+var nuxeo = nuxeo || require('nuxeo');
 var rest = require('nuxeo/node_modules/restler');
 var url = require('url');
 var gui = require('nw.gui');
 var nuxeoupload = require('./nuxeoupload');
 var logger = require('./logs');
+nuxeo = Promise.promisifyAll(nuxeo);
 
 
 /**
@@ -23,7 +24,7 @@ NuxeoUploadApp.on("start", function(options){
       waiting: 0,
       uploading: 0,
       success: 0,
-      problems: []
+      error: 0
     }
   });
   var summaryModel = new SummaryModel();
@@ -34,7 +35,7 @@ NuxeoUploadApp.on("start", function(options){
       'div#waiting': 'text:waiting',
       'div#uploading': 'text:uploading',
       'div#success': 'text:success',
-      'div#problems': 'text:length(problems)'
+      'div#error': 'text:error'
     }
   });
   var summaryView = new SummaryView({model: summaryModel});
@@ -218,10 +219,12 @@ NuxeoUploadApp.on("start", function(options){
     fileListView.collection.findWhere({path: file.path}).set('state', 'success')
   });
 
-  emitter.on('uploadError', function(error, fileModel) {
+  emitter.on('uploadError', function(error, fileModel, data) {
     var success = summaryModel.get('success');
-    summaryModel.set('success', success - 1)
-    summaryModel.get('problems').push({ error: error, fileModel: fileModel});
+    var errors = summaryModel.get('error');
+    summaryModel.set('success', success - 1);
+    summaryModel.set('error', errors + 1);
+    console.log(error, fileModel, data);
   });
 
 
@@ -295,8 +298,10 @@ NuxeoUploadApp.on("start", function(options){
 
     summaryModel.set('waiting', fileListView.collection.length);
 
-    var x = nuxeoupload.runBatch(client, emitter, fileListView.collection, nuxeo_directory, function(){
+    var x = nuxeoupload.runBatch(client, emitter, fileListView.collection, nuxeo_directory, function(out){
+      console.log(out);
     });
+    console.log(x);
 
   });
 });

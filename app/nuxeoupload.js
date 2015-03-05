@@ -79,8 +79,7 @@ module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_d
         if (error) {
           fileModel.set('state', 'error');
           logger.error('uploadError', error);
-          console.log('uploadError', error);
-          emitter.emit('uploadError', error, fileModel)
+          emitter.emit('uploadError', error, fileModel, data)
         } else {
           fileModel.set('state', 'success');
           logger.info('uploadOk', data);
@@ -93,8 +92,8 @@ module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_d
   var out = collection.map(function(fileModel, index, list){
     return up1(fileModel);
   });
-
-  callback(out);
+  console.log(out);
+  callback(uploader);
 }
 
 

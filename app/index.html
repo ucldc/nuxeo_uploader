@@ -13,6 +13,7 @@
   <script type="text/javascript" src="node_modules/backbone.localstorage/backbone.localStorage.js"></script>
   <script type="text/javascript" src="node_modules/backbone.marionette/lib/backbone.marionette.js"></script>
   <script type="text/javascript" src="node_modules/datatables/media/js/jquery.dataTables.js"></script>
+  <!-- script type="text/javascript" src="bower_components/nuxeo/lib/jquery/nuxeo.js"></script -->
   <style>
     .panel-body { padding-left: 0.2em; }
     th { min-width: 100px; }
@@ -150,19 +151,19 @@ skip if the file name is already in nuxeo
 
   <div id="summary" class="row">
     <h2 class="col-xs-12">Summary</h2>
-    <div class="col-xs-2" style="border: solid black 1;">
+    <div class="col-xs-2">
       <div><span class="label label-default">Selected</span></div>
       <div><span class="label label-info">Waiting</span></div>
       <div><span class="label label-primary">Uploading</span></div>
       <div><span class="label label-success">Success</span></div>
-      <div><span class="label label-warning">Problems</span></div>
+      <div><span class="label label-warning">Error</span></div>
     </div>
     <div class="col-xs-10">
       <div id="selected"></div>
       <div id="waiting"></div>
       <div id="uploading"></div>
       <div id="success"></div>
-      <div id="problems"></div>
+      <div id="error"></div>
     </div>
   </div>
 
