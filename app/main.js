@@ -227,6 +227,14 @@ NuxeoUploadApp.on("start", function(options){
     console.log(error, fileModel, data);
   });
 
+  emitter.on('uploadProgressUpdated', function(fileIndex, file, newProgress){
+    console.log('uploadProgressUpdated', fileIndex, file, newProgress);
+  });
+
+  emitter.on('uploadSpeedUpdated', function(fileIndex, file, speed){
+    console.log('uploadSpeedUpdated', fileIndex, file, speed);
+  });
+
 
   /*
    *  configuration / get token after shibboleth

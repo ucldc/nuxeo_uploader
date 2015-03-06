@@ -57,12 +57,22 @@ module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_d
 
   var uploader = client.operation('FileManager.Import')
     .context({ currentDocument: nuxeo_directory })
-    // nuxeo's jquery version of the API has more callbacks, but I can't get it to work
     .uploader({
+      // convert callbacks to events
       batchStartedCallback: function(batchId) { emitter.emit('batchStarted', batchId); },
       batchFinishedCallback: function(batchId) { emitter.emit('batchFinished', batchId); },
-      uploadStartedCallback: function(fileIndex, file) { emitter.emit('uploadStarted', fileIndex, file) },
-      uploadFinishedCallback: function(fileIndex, file, time) { emitter.emit('uploadFinished', fileIndex, file, time); }
+      uploadStartedCallback: function(fileIndex, file) {
+        emitter.emit('uploadStarted', fileIndex, file)
+      },
+      uploadFinishedCallback: function(fileIndex, file, time) {
+        emitter.emit('uploadFinished', fileIndex, file, time)
+      },
+      uploadProgressUpdatedCallback: function(fileIndex, file, newProgress) {
+        emitter.emit('uploadProgressUpdated', fileIndex, file, newProgress)
+      },
+      uploadSpeedUpdatedCallback: function(fileIndex, file, speed) {
+        emitter.emit('uploadSpeedUpdated', fileIndex, file, speed)
+      }
     });
 
   function up1(fileModel) {
