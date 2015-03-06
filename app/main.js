@@ -3,7 +3,6 @@ var path = require('path');
 var EventEmitter = require('events').EventEmitter;
 var Promise = require('bluebird');
 var nuxeo = nuxeo || require('nuxeo');
-var rest = require('nuxeo/node_modules/restler');
 var url = require('url');
 var gui = require('nw.gui');
 var nuxeoupload = require('./nuxeoupload');
@@ -91,7 +90,8 @@ NuxeoUploadApp.on("start", function(options){
   var client = new nuxeo.Client({
     baseURL: configModel.nuxeoBase(),
     auth: { method: 'token' },
-    headers: { 'X-Authentication-Token': configModel.attributes.nuxeoToken }
+    headers: { 'X-Authentication-Token': configModel.attributes.nuxeoToken },
+    timeout: 2995000
   });
   var NuxeoFolderCollection = Backbone.Collection.extend({
     model: Backbone.Model

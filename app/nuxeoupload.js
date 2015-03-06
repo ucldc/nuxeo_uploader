@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-var nuxeo = nuxeo || require('nuxeo');
-var rest = require('nuxeo/node_modules/restler');
+var rest = require('restler');
 var fs = require('fs');
 var Promise = require("bluebird");
 var pfa = require("bluebird").promisifyAll;
@@ -9,7 +8,6 @@ var path = require('path');
 var os = require('os');
 var _ = require('underscore');
 var logger = require('./logs');
-nuxeo = pfa(nuxeo);
 
 
 /*
@@ -70,7 +68,7 @@ module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_d
   function up1(fileModel) {
     var filePath = fileModel.get('path');
     var stats = fs.statSync(filePath);
-    var rfile = rest.file(filePath, null, stats.size, null, null);
+    var rfile = fileModel.attributes;
 
     return uploader.uploadFile(rfile, function(fileIndex, file, timeDiff) {
       uploader.execute({
@@ -98,31 +96,6 @@ module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_d
 
 
 /*
- * upload a file to Nuxeo and run callback(file, data)
- */
-module.exports.upload = function upload(client, params, callback) {
-  var bb_file = params.file;
-  var stats = fs.statSync(params.file.attributes.path);
-  var file = rest.file(params.file.attributes.path, null, stats.size, null, null);
-
-  var uploader = client.operation('FileManager.Import')
-    .context({ currentDocument: params.folder })
-    .uploader();
-
-  uploader.uploadFile(file, function(fileIndex, file, timeDiff) {
-    uploader.execute({
-      path: path.basename(params.file)
-    }, function (error, data) {
-      if (error) {
-        throw error;
-      }
-      callback(bb_file, file, data);
-    });
-  });
-}
-
-
-/*
  * return URL to get auth token from Nuxeo server.
  */
 module.exports.get_auth_token_link = function get_auth_token_link() {
@@ -138,6 +111,8 @@ module.exports.get_auth_token_link = function get_auth_token_link() {
  * if this is running as a script
  */
 if (require.main === module) {
+  var nuxeo = require('nuxeo');
+  nuxeo = pfa(nuxeo);
   var client = new nuxeo.Client({
     auth: { method: 'token' },
     headers: { 'X-Authentication-Token': process.env.NUXEO_TOKEN }
