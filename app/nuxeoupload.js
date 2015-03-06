@@ -78,7 +78,7 @@ module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_d
   function up1(fileModel) {
     var filePath = fileModel.get('path');
     var stats = fs.statSync(filePath);
-    var rfile = fileModel.attributes;
+    var rfile = fileModel.attributes.file;
 
     return uploader.uploadFile(rfile, function(fileIndex, file, timeDiff) {
       uploader.execute({

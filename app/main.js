@@ -120,6 +120,9 @@ NuxeoUploadApp.on("start", function(options){
   var FileModel = Backbone.Model.extend({
     defaults: {
       state: 'selected'
+    },
+    initialize: function(item) {
+      this.set('file', item);
     }
   });
   // set up a cell class for each column
@@ -153,8 +156,8 @@ NuxeoUploadApp.on("start", function(options){
       var that = this;
       _(e).each(function(item){
         that.counter++;
-        var file = new FileModel();
-        file.set(item);
+        var file = new FileModel(item);
+        // file.set(item);
         that.collection.add(file);
       });
       summaryModel.set('selected', this.counter);
