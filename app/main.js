@@ -279,8 +279,9 @@ NuxeoUploadApp.on("start", function(options){
       $('#nx_status')
         .addClass('glyphicon glyphicon-ok text-success')
         .html('ok');
-      // enable folder selection when connection is set up
+      // enable selection when connection is set up
       $('#select_nuxeo').removeClass('disabled');
+      $('input[type=file]').removeClass('disabled');
       // won't need the auth token link again
       $('#auth_token_link').hide('');
     } else {
