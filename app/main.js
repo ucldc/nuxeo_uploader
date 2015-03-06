@@ -220,8 +220,12 @@ NuxeoUploadApp.on("start", function(options){
     summaryModel.set('uploading', uploading - 1)
     summaryModel.set('success', success + 1)
     fileListView.collection.findWhere({path: file.path}).set('state', 'success')
+    var newProgress = success / summaryModel.get('selected') * 100;
+    $('#overall')
+      .css('width', newProgress + '%')
+      .attr('aria-valuenow', newProgress)
+      .html(file.path + ' ' + newProgress + '%');
   });
-
   emitter.on('uploadError', function(error, fileModel, data) {
     var success = summaryModel.get('success');
     var errors = summaryModel.get('error');
@@ -229,13 +233,15 @@ NuxeoUploadApp.on("start", function(options){
     summaryModel.set('error', errors + 1);
     console.log(error, fileModel, data);
   });
-
   emitter.on('uploadProgressUpdated', function(fileIndex, file, newProgress){
-    console.log('uploadProgressUpdated', fileIndex, file, newProgress);
+    // console.log('uploadProgressUpdated', fileIndex, file, newProgress);
+    $('#i' + fileIndex)
+      .css('width', newProgress + '%')
+      .attr('aria-valuenow', newProgress)
+      .html(file.path + ' ' + newProgress + '%');
   });
-
   emitter.on('uploadSpeedUpdated', function(fileIndex, file, speed){
-    console.log('uploadSpeedUpdated', fileIndex, file, speed);
+    // console.log('uploadSpeedUpdated', fileIndex, file, speed);
   });
 
 
