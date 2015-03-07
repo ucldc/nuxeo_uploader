@@ -217,14 +217,16 @@ NuxeoUploadApp.on("start", function(options){
   emitter.on('uploadFinished', function(fileIndex, file, time) {
     var uploading = summaryModel.get('uploading');
     var success = summaryModel.get('success');
+    var total = summaryModel.get('selected');
     summaryModel.set('uploading', uploading - 1)
     summaryModel.set('success', success + 1)
     fileListView.collection.findWhere({path: file.path}).set('state', 'success')
-    var newProgress = success / summaryModel.get('selected') * 100;
+    var newProgress = Math.round(success / total * 100);
+    var newText = success + ' / ' + total + '  ' + newProgress + '%';
     $('#overall')
       .css('width', newProgress + '%')
       .attr('aria-valuenow', newProgress)
-      .html(file.path + ' ' + newProgress + '%');
+      .html(newText);
   });
   emitter.on('uploadError', function(error, fileModel, data) {
     var success = summaryModel.get('success');
