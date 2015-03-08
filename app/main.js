@@ -2,7 +2,6 @@
 var path = require('path');
 var EventEmitter = require('events').EventEmitter;
 var Promise = require('bluebird');
-var nuxeo = nuxeo || require('nuxeo');
 var url = require('url');
 var gui = require('nw.gui');
 var nuxeoupload = require('./nuxeoupload');
