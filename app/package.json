@@ -23,7 +23,6 @@
     "backbone.marionette": "^2.3.2",
     "bluebird": "^2.9.9",
     "bootstrap": "^3.3.2",
-    "datatables": "^1.10.5",
     "jquery": "^2.1.3",
     "node-webkit-builder": "*",
     "underscore": "^1.8.1",

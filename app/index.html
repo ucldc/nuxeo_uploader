@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
-  <link rel="stylesheet" href="node_modules/datatables/media/css/jquery.dataTables.css">
   <script type="text/javascript" src="node_modules/jquery/dist/jquery.js"></script>
   <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
   <script type="text/javascript" src="node_modules/underscore/underscore.js"></script>
@@ -12,11 +11,17 @@
   <script type="text/javascript" src="node_modules/backbone.epoxy/backbone.epoxy.js"></script>
   <script type="text/javascript" src="node_modules/backbone.localstorage/backbone.localStorage.js"></script>
   <script type="text/javascript" src="node_modules/backbone.marionette/lib/backbone.marionette.js"></script>
-  <script type="text/javascript" src="node_modules/datatables/media/js/jquery.dataTables.js"></script>
   <script type="text/javascript" src="bower_components/nuxeo/lib/jquery/nuxeo.js"></script>
   <style>
     .panel-body { padding-left: 0.2em; }
     th { min-width: 100px; }
+    .progress-bar[aria-valuenow="0"] {
+      /* https://github.com/twbs/bootstrap/issues/12848#issuecomment-36070891 */
+      color: #000;
+      min-width: 3%;
+      background: transparent;
+      box-shadow: none;
+    }
   </style>
 </head>
 
@@ -135,7 +140,7 @@ skip if the file name is already in nuxeo
   <!-- workflow feedback -->
   <div class="row">
     <div class="col-xs-12" style="padding-top: 1em;">
-      <table id="local">
+      <table id="local" class="table table-condensed">
         <thead>
           <tr>
             <th data-sort="string">state</th>
@@ -159,7 +164,7 @@ skip if the file name is already in nuxeo
       <div><span class="label label-info">Waiting</span></div>
       <div><span class="label label-primary">Uploading</span></div>
       <div><span class="label label-success">Success</span></div>
-      <div><span class="label label-warning">Error</span></div>
+      <div><span class="label label-danger">Error</span></div>
     </div>
     <div class="col-xs-1">
       <div id="selected"></div>
@@ -171,22 +176,6 @@ skip if the file name is already in nuxeo
     <div class="col-xs-8">
       <div class="progress">
         <div id="overall" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"> </div>
-      </div>
-      <p>5 concurrent uploads
-      <div class="progress">
-        <div id="i0" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"> </div>
-      </div>
-      <div class="progress">
-        <div id="i1" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"> </div>
-      </div>
-      <div class="progress">
-        <div id="i2" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"> </div>
-      </div>
-      <div class="progress">
-        <div id="i3" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"> </div>
-      </div>
-      <div class="progress">
-        <div id="i4" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"> </div>
       </div>
     </div>
   </div>

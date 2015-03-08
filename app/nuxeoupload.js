@@ -75,12 +75,12 @@ module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_d
       }
     });
 
-  function up1(fileModel) {
+  collection.each(function(fileModel, index, list){
     var filePath = fileModel.get('path');
     var stats = fs.statSync(filePath);
     var rfile = fileModel.attributes.file;
 
-    return uploader.uploadFile(rfile, function(fileIndex, file, timeDiff) {
+    uploader.uploadFile(rfile, function(fileIndex, file, timeDiff) {
       uploader.execute({
         path: path.basename(filePath)
       }, function (error, data) {
@@ -95,13 +95,7 @@ module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_d
         }
       });
     });
-  };
-
-  var out = collection.map(function(fileModel, index, list){
-    return up1(fileModel);
   });
-  console.log(out);
-  callback(uploader);
 }
 
 

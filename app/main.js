@@ -114,32 +114,55 @@ NuxeoUploadApp.on("start", function(options){
   var folderView = new NuxeoFolderCollectionView(client);
 
 
+   var classMap = {
+      selected: '',
+      waiting: 'info',
+      uploading: '',
+      success: 'success',
+      error: 'danger'
+   }
+
   /*
    *  set up Models and Views for file processing
    */
-  var FileModel = Backbone.Model.extend({
+  var FileModel = Backbone.Epoxy.Model.extend({
     defaults: {
       state: 'selected'
     },
     initialize: function(item) {
       this.set('file', item);
+      this.set('lastModifiedDate', item.lastModifiedDate.toJSON());
+    },
+    computeds: {
+      cssClass: function() {
+        var state = this.get('state');
+        return classMap[state];
+      },
+      at: function() {
+        return 'i' + fileListView.collection.length;
+      }
     }
   });
   // set up a cell class for each column
-  var cols = ['state', 'filename', 'lastmodified', 'size'];
+  var progressbar = '<td><div class="progress">' +
+        '<div class="progress-bar size" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"> </div>' +
+      '</div></td>';
+  var cols = ['state', 'filename', 'lastmodified'];
   var tmpl = _.template("<td class='<%= css %>'></td>");
   cols = cols.map(function(x) {
     return tmpl({css: x});
   });
   var FileView = Backbone.Epoxy.View.extend({
     tagName: 'tr',
-    el: '<tr data-bind="attr:{class:state}">' + cols.join() + '</tr>',
+    el: '<tr>' + cols.join() + progressbar + '</tr>',
     bindings: {
+      ':el': 'attr:{class:cssClass}',
+      'div.progress-bar': 'attr:{id:at}',
       '.state': 'text:state',
       '.lastmodified': 'text:lastModifiedDate',
-      '.filename': 'text:path',
+      '.filename': 'text:name',
       '.size': 'text:size'
-    },
+    }
   });
   var FileCollection = Backbone.Collection.extend({
     model: FileModel
@@ -215,14 +238,14 @@ NuxeoUploadApp.on("start", function(options){
     summaryModel.set('uploading', uploading + 1)
   });
   emitter.on('uploadFinished', function(fileIndex, file, time) {
-    var uploading = summaryModel.get('uploading');
-    var success = summaryModel.get('success');
+    var uploading = summaryModel.get('uploading') - 1;
+    var success = summaryModel.get('success') + 1;
     var total = summaryModel.get('selected');
-    summaryModel.set('uploading', uploading - 1)
-    summaryModel.set('success', success + 1)
-    fileListView.collection.findWhere({path: file.path}).set('state', 'success')
     var newProgress = Math.round(success / total * 100);
     var newText = success + ' / ' + total + '  ' + newProgress + '%';
+    summaryModel.set('uploading', uploading);
+    summaryModel.set('success', success);
+    fileListView.collection.findWhere({path: file.path}).set('state', 'success');
     $('#overall')
       .css('width', newProgress + '%')
       .attr('aria-valuenow', newProgress)
@@ -240,7 +263,7 @@ NuxeoUploadApp.on("start", function(options){
     $('#i' + fileIndex)
       .css('width', newProgress + '%')
       .attr('aria-valuenow', newProgress)
-      .html(file.path + ' ' + newProgress + '%');
+      .html(file.size + ' ' + newProgress + '%');
   });
   emitter.on('uploadSpeedUpdated', function(fileIndex, file, speed){
     // console.log('uploadSpeedUpdated', fileIndex, file, speed);
@@ -273,7 +296,6 @@ NuxeoUploadApp.on("start", function(options){
     fileListView.addFiles(this.files);
     this.disabled = true;
     $(this).addClass('btn-default').removeClass('btn-primary');
-    $('#local').DataTable();
   });
 
   /* select directory to upload to
@@ -311,18 +333,11 @@ NuxeoUploadApp.on("start", function(options){
     var nuxeo_directory = $('#select_nuxeo select').val();
     var $btn = $(this).button('loading');
     $('#select_nuxeo').addClass('disabled');
-
     fileListView.collection.each(function(fileModel) {
       fileModel.set('state', 'waiting');
     });
-
     summaryModel.set('waiting', fileListView.collection.length);
-
-    var x = nuxeoupload.runBatch(client, emitter, fileListView.collection, nuxeo_directory, function(out){
-      console.log(out);
-    });
-    console.log(x);
-
+    nuxeoupload.runBatch(client, emitter, fileListView.collection, nuxeo_directory);
   });
 });
 
