@@ -2,6 +2,7 @@
 var path = require('path');
 var EventEmitter = require('events').EventEmitter;
 var Promise = require('bluebird');
+var filesize = require('filesize');
 var url = require('url');
 var gui = require('nw.gui');
 var nuxeoupload = require('./nuxeoupload');
@@ -131,6 +132,11 @@ NuxeoUploadApp.on("start", function(options){
     initialize: function(item) {
       this.set('file', item);
       this.set('lastModifiedDate', item.lastModifiedDate.toJSON());
+      this.set(
+        'size',
+        filesize(item.size)
+        .replace(' ','') // for some reason it won't display with a space
+      );
     },
     computeds: {
       cssClass: function() {
