@@ -18,6 +18,10 @@ var NuxeoUploadApp = new Backbone.Marionette.Application();
 NuxeoUploadApp.on("start", function(options){
   logger.info('application starting');
 
+
+  /*
+   * model and view for summary area
+   */
   var SummaryModel = Backbone.Model.extend({
     defaults: {
       selected: 0,
@@ -196,6 +200,7 @@ NuxeoUploadApp.on("start", function(options){
    */
   var emitter = new EventEmitter();
 
+
   /* 'canStartYet' events fire on certain user interactions to
      trigger this check of the interface state so the `btn-primary` class
      can be moved around the input elements
@@ -315,7 +320,7 @@ NuxeoUploadApp.on("start", function(options){
   nuxeoupload.nx_status(client, function(it_is_up) {
     if (it_is_up) {
       $('#nx_status')
-        .addClass('glyphicon glyphicon-ok text-success')
+        .addClass('glyphicon glyphicon-link text-success')
         .html('ok');
       // enable selection when connection is set up
       $('#select_nuxeo').removeClass('disabled');
