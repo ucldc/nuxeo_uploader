@@ -133,11 +133,7 @@ NuxeoUploadApp.on("start", function(options){
     initialize: function(item) {
       this.set('file', item);
       this.set('lastModifiedDate', item.lastModifiedDate.toJSON());
-      this.set(
-        'size',
-        filesize(item.size)
-        .replace(' ','') // for some reason it won't display with a space
-      );
+      this.set('size', filesize(item.size));
     },
     computeds: {
       cssClass: function() {
@@ -269,7 +265,7 @@ NuxeoUploadApp.on("start", function(options){
     $('#i' + fileIndex)
       .css('width', newProgress + '%')
       .attr('aria-valuenow', newProgress)
-      .html(file.size + ' ' + newProgress + '%');
+      .html(filesize(file.size) + ' ' + newProgress + '%');
   });
   emitter.on('uploadSpeedUpdated', function(fileIndex, file, speed){
     // console.log('uploadSpeedUpdated', fileIndex, file, speed);

@@ -15,11 +15,11 @@
   <style>
     .panel-body { padding-left: 0.2em; }
     th { min-width: 100px; }
+    /* https://github.com/twbs/bootstrap/issues/12848#issuecomment-36070891 */
     .progress-bar[aria-valuenow="0"] {
-      /* https://github.com/twbs/bootstrap/issues/12848#issuecomment-36070891 */
       color: #000;
-      min-width: 3%;
       background: transparent;
+      min-width: 100%;
       box-shadow: none;
     }
   </style>
