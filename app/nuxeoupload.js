@@ -53,32 +53,60 @@ module.exports.writable_folderish = function writable_folderish(client, regex){
  * run whole batch of files
  */
 module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_directory) {
+  // http://spion.github.io/promise-nuggets/16-map-limit.html cc0
+  var queue = [];
+  var concurrent = 3;
 
+  var uploadPromises = collection.map(function(fileModel, index) {
+    // How many items must download before fetching the next?
+    // The queued, minus those running in parallel, plus one of
+    // the parallel slots.
+    var mustComplete = Math.max(0, queue.length - concurrent + 1);
+    // when enough items are complete, queue another request for an item
+    var upload = Promise.some(queue, mustComplete)
+      .then(function() {
+        return module.exports.runOne(client, emitter, fileModel, index, nuxeo_directory);
+      });
+    queue.push(upload);
+    return upload.then(function(item) {
+      return item;
+    });
+  });
+  Promise.settle(uploadPromises).then(function(uploads) {
+    emitter.emit('batchFinished');
+    console.log(uploads);
+  });
+};
+
+
+
+/*
+ * run one file
+ */
+module.exports.runOne = function runOne(client, emitter, fileModel, index, nuxeo_directory) {
   var uploader = client.operation('FileManager.Import')
     .context({ currentDocument: nuxeo_directory })
     .uploader({
       // convert callbacks to events
-      batchStartedCallback: function(batchId) { emitter.emit('batchStarted', batchId); },
-      batchFinishedCallback: function(batchId) { emitter.emit('batchFinished', batchId); },
       uploadStartedCallback: function(fileIndex, file) {
-        emitter.emit('uploadStarted', fileIndex, file)
+        emitter.emit('uploadStarted', index, file)
       },
       uploadFinishedCallback: function(fileIndex, file, time) {
-        emitter.emit('uploadFinished', fileIndex, file, time)
+        emitter.emit('uploadFinished', index, file, time)
       },
       uploadProgressUpdatedCallback: function(fileIndex, file, newProgress) {
-        emitter.emit('uploadProgressUpdated', fileIndex, file, newProgress)
+        emitter.emit('uploadProgressUpdated', index, file, newProgress)
       },
       uploadSpeedUpdatedCallback: function(fileIndex, file, speed) {
-        emitter.emit('uploadSpeedUpdated', fileIndex, file, speed)
+        emitter.emit('uploadSpeedUpdated', index, file, speed)
       }
-    });
+  });
 
-  collection.each(function(fileModel, index, list){
-    var filePath = fileModel.get('path');
-    var stats = fs.statSync(filePath);
-    var rfile = fileModel.get('file');
+  var filePath = fileModel.get('path');
+  var stats = fs.statSync(filePath);
+  var rfile = fileModel.get('file');
 
+  return new Promise(function(resolve, reject){
     uploader.uploadFile(rfile, function(fileIndex, file, timeDiff) {
       uploader.execute({
         path: path.basename(filePath)
@@ -87,15 +115,18 @@ module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_d
           fileModel.set('state', 'error');
           logger.error('uploadError', error);
           emitter.emit('uploadError', error, fileModel, data)
+          reject(error, fileModel, data);
         } else {
           fileModel.set('state', 'success');
           logger.info('uploadOk', data);
           emitter.emit('uploadOk', data)
+          resolve(data);
         }
       });
     });
   });
 }
+
 
 
 /*
