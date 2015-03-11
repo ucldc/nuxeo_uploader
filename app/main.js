@@ -194,6 +194,7 @@ NuxeoUploadApp.on("start", function(options){
   var fileListView = new FileListView();
 
 
+
   /**
    *  Interactions / jQuery / emitters / callbacks that change HTML
    */
@@ -303,11 +304,16 @@ NuxeoUploadApp.on("start", function(options){
     $(this).addClass('btn-default').removeClass('btn-primary');
   });
 
-  /* select directory to upload to
+
+
+  /*
+   * select directory to upload to
    */
   $('#select_nuxeo select').on('change', function () {
     emitter.emit('canStartYet');
   });
+
+
 
   /*
    *  nx_status fires callback(true|false) with connection status
