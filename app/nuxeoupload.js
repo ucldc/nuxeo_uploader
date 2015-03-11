@@ -49,18 +49,18 @@ module.exports.writable_folderish = function writable_folderish(client, regex){
 }
 
 
+
 /*
  * run whole batch of files
  */
-module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_directory) {
+module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_directory, concurrent) {
+  // Sometimes we might want to run a limited number of tasks in parallel.
   // http://spion.github.io/promise-nuggets/16-map-limit.html cc0
   var queue = [];
-  var concurrent = 3;
 
   var uploadPromises = collection.map(function(fileModel, index) {
     // How many items must download before fetching the next?
-    // The queued, minus those running in parallel, plus one of
-    // the parallel slots.
+    // The queued, minus those running in parallel, plus one of the parallel slots.
     var mustComplete = Math.max(0, queue.length - concurrent + 1);
     // when enough items are complete, queue another request for an item
     var upload = Promise.some(queue, mustComplete)
@@ -74,14 +74,14 @@ module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_d
   });
   Promise.settle(uploadPromises).then(function(uploads) {
     emitter.emit('batchFinished');
-    console.log(uploads);
+    // console.log(uploads);
   });
 };
 
 
 
 /*
- * run one file
+ * run one file (return Promise)
  */
 module.exports.runOne = function runOne(client, emitter, fileModel, index, nuxeo_directory) {
   var uploader = client.operation('FileManager.Import')

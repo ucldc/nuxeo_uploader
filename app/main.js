@@ -14,6 +14,7 @@ nuxeo = Promise.promisifyAll(nuxeo);
  * backbone / marionette / epoxy application
  */
 var NuxeoUploadApp = new Backbone.Marionette.Application();
+
 NuxeoUploadApp.on("start", function(options){
   logger.info('application starting');
 
@@ -38,6 +39,7 @@ NuxeoUploadApp.on("start", function(options){
     }
   });
   var summaryView = new SummaryView({model: summaryModel});
+
 
   /*
    * model and view for configuration object
@@ -114,17 +116,16 @@ NuxeoUploadApp.on("start", function(options){
   var folderView = new NuxeoFolderCollectionView(client);
 
 
-   var classMap = {
-      selected: '',
-      waiting: 'info',
-      uploading: '',
-      success: 'success',
-      error: 'danger'
-   }
-
   /*
    *  set up Models and Views for file processing
    */
+  var classMap = {
+    selected: '',
+    waiting: 'info',
+    uploading: '',
+    success: 'success',
+    error: 'danger'
+  }
   var FileModel = Backbone.Epoxy.Model.extend({
     defaults: {
       state: 'selected'
@@ -192,7 +193,6 @@ NuxeoUploadApp.on("start", function(options){
     },
   });
   var fileListView = new FileListView();
-
 
 
   /**
@@ -305,14 +305,12 @@ NuxeoUploadApp.on("start", function(options){
   });
 
 
-
   /*
    * select directory to upload to
    */
   $('#select_nuxeo select').on('change', function () {
     emitter.emit('canStartYet');
   });
-
 
 
   /*
@@ -340,24 +338,25 @@ NuxeoUploadApp.on("start", function(options){
    *  Upload files
    */
   $('#upload').click(function () {
-    emitter.emit('upload triggered', fileListView);
     var nuxeo_directory = $('#select_nuxeo select').val();
-    var $btn = $(this).button('loading');
+    var concurrent = 3;
+    $(this).button('loading');
+    emitter.emit('upload triggered', fileListView);
     $('#select_nuxeo').addClass('disabled');
     fileListView.collection.each(function(fileModel) {
       fileModel.set('state', 'waiting');
     });
     summaryModel.set('waiting', fileListView.collection.length);
-    nuxeoupload.runBatch(client, emitter, fileListView.collection, nuxeo_directory);
+    nuxeoupload.runBatch(client, emitter, fileListView.collection, nuxeo_directory, concurrent);
   });
 });
 
 NuxeoUploadApp.start();
 
+
 /*
  * applicaiton menu for node-webkit (nw.js)
  */
-
 // https://github.com/nwjs/nw.js/issues/1955
 var win = gui.Window.get();
 var nativeMenuBar = new gui.Menu({ type: "menubar" });
