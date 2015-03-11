@@ -233,8 +233,7 @@ NuxeoUploadApp.on("start", function(options){
   emitter.on('batchStarted', function(batchId) { });
   emitter.on('batchFinished', function(batchId) {
     console.log('batch finished');
-    // $('#upload').button('reset');
-    // $('#upload').prop('disabled', true);
+    $('#upload').removeClass('btn-primary');
     new Notification("Batch finished");
   });
   emitter.on('uploadStarted', function(fileIndex, file) {
