@@ -8,7 +8,7 @@
     "url": "https://github.com/tingletech/nuxeo_uploader.git"
   },
   "window": {
-    "title": "Nuxeo File Uploader for UCLDC",
+    "title": "File Uploader for UCLDC Nuxeo Shared DAMS",
     "toolbar": true,
     "frame": true,
     "resizable": true,

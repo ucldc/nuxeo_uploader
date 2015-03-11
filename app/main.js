@@ -362,7 +362,7 @@ NuxeoUploadApp.start();
 var win = gui.Window.get();
 var nativeMenuBar = new gui.Menu({ type: "menubar" });
 try {
-  nativeMenuBar.createMacBuiltin("Nuxeo Uploader");
+  nativeMenuBar.createMacBuiltin("Nuxeo File Uploader");
   win.menu = nativeMenuBar;
 } catch (ex) {
   logger.warn(ex.message);
