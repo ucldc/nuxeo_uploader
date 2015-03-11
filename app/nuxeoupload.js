@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 'use strict';
-var rest = require('restler');
 var fs = require('fs');
 var Promise = require("bluebird");
 var pfa = require("bluebird").promisifyAll;
@@ -53,7 +52,7 @@ module.exports.writable_folderish = function writable_folderish(client, regex){
 /*
  * run whole batch of files
  */
-module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_directory, callback) {
+module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_directory) {
 
   var uploader = client.operation('FileManager.Import')
     .context({ currentDocument: nuxeo_directory })
@@ -78,7 +77,7 @@ module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_d
   collection.each(function(fileModel, index, list){
     var filePath = fileModel.get('path');
     var stats = fs.statSync(filePath);
-    var rfile = fileModel.attributes.file;
+    var rfile = fileModel.get('file');
 
     uploader.uploadFile(rfile, function(fileIndex, file, timeDiff) {
       uploader.execute({

@@ -90,7 +90,7 @@ NuxeoUploadApp.on("start", function(options){
   var client = new nuxeo.Client({
     baseURL: configModel.nuxeoBase(),
     auth: { method: 'token' },
-    headers: { 'X-Authentication-Token': configModel.attributes.nuxeoToken },
+    headers: { 'X-Authentication-Token': configModel.get('nuxeoToken') },
     timeout: 2995000
   });
   var NuxeoFolderCollection = Backbone.Collection.extend({
