@@ -51,7 +51,7 @@ NuxeoUploadApp.on("start", function(options){
   var ConfigModel = Backbone.Model.extend({
     localStorage: new Backbone.LocalStorage("nuxeo_uploader_config"),
     defaults: {
-      nuxeoServer: 'http://localhost:8080/nuxeo',
+      nuxeoServer: 'https://nuxeo.cdlib.org/nuxeo',
       nuxeoToken: '',
       pathFilter: '/asset-library/',
       skipReupload: true,

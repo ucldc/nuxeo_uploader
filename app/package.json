@@ -1,6 +1,6 @@
 {
   "name": "nuxeouploader",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "upload files to nuxeo for UCLDC",
   "main": "index.html",
   "repository": {
@@ -13,7 +13,7 @@
     "frame": true,
     "resizable": true,
     "position": "center",
-    "width": 800,
+    "width": 1000,
     "height": 600
   },
   "dependencies": {
