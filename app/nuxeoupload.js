@@ -28,21 +28,23 @@ module.exports.nx_status = function nx_status(client, cb){
 /*
  * get writable locations (returns Promise)
  */
-module.exports.writable_folderish = function writable_folderish(client, regex){
+module.exports.writable_folderish = function writable_folderish(client, path){
+  // select Organization documents a.k.a. "Project Folder" in the UI
+  var nxql = "select * from Organization WHERE ecm:path STARTSWITH '" + path + "'";
+  console.log(nxql);
   return new Promise(function(resolve, reject){
     client.request('/').schema(['dublincore', 'file'])
       .path('@search')
       .query({
-        // select all Organization documents a.k.a. "Project Folder" in the UI
-        'query': 'select * from Organization'
-      }).execute(function(error, data, responce) {
+        'query': nxql
+      }).execute(function(error, data, response) {
         if (error) { reject(error); }
         // filter out directories that don't match supplied regex
-        // ?? does this handel paging results?
+        // ?? does this handle paging results? -- NO!
         var out = [];
         out = _.map(data.entries, function(x) {
-          if (regex.test(x.path)) { return x.path; }
-        }).filter( function(val) { return val !== undefined; } );
+          return x.path;
+        });
         resolve(out);
       });
   });

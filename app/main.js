@@ -107,8 +107,9 @@ NuxeoUploadApp.on("start", function(options){
     initialize: function(client) {
       this.collection = new NuxeoFolderCollection();
       var that = this;
-      var re = new RegExp('^' + $('#path_filter').val());
-      nuxeoupload.writable_folderish(client, re)
+      var path = $('#path_filter').val();
+      var re = new RegExp('^' + path);
+      nuxeoupload.writable_folderish(client, path)
         .then(function(folders) {
           that.collection.reset(_.map(folders, function(x) {
             return { label: x.replace(re, ''),
