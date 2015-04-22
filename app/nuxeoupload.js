@@ -30,7 +30,8 @@ module.exports.nx_status = function nx_status(client, cb){
  */
 module.exports.writable_folderish = function writable_folderish(client, path){
   // select Organization documents a.k.a. "Project Folder" in the UI
-  var nxql = "select * from Organization WHERE ecm:path STARTSWITH '" + path + "'";
+  var nxql = "select * from Organization WHERE ecm:path STARTSWITH '" +
+              path + "' ORDER BY ecm:path";
   console.log(nxql);
   return new Promise(function(resolve, reject){
     client.request('/').schema(['dublincore', 'file'])
