@@ -34,20 +34,40 @@ module.exports.writable_folderish = function writable_folderish(client, path){
               path + "' ORDER BY ecm:path";
   console.log(nxql);
   return new Promise(function(resolve, reject){
-    client.request('/').schema(['dublincore', 'file'])
+    var request = client.request('/').schema(['dublincore', 'file'])
       .path('@search')
       .query({
         'query': nxql
-      }).execute(function(error, data, response) {
-        if (error) { reject(error); }
-        // filter out directories that don't match supplied regex
-        // ?? does this handle paging results? -- NO!
-        var out = [];
-        out = _.map(data.entries, function(x) {
+    });
+
+    request.execute(function(error, data, response) {
+      if (error) { reject(error); }
+
+      var out = [];
+      out = _.map(data.entries, function(x) {
+        return x.path;
+      });
+
+      var newPagePromises = [];
+
+      for (var i = 1; i < data.pageCount; i++) {
+        var x = pfa(request.query({ currentPageIndex: i }));
+        newPagePromises.push(x.executeAsync());
+      }
+
+      Promise.all(newPagePromises).then(function(all) {
+        var first = _.map(all, function(x){
+          return x[0].entries;
+        });
+        var flat = _.flatten(first);
+        var dirs = _.map(flat, function(x){
           return x.path;
         });
+        out = out.concat(dirs);
         resolve(out);
       });
+
+    });
   });
 }
 
