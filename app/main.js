@@ -109,13 +109,15 @@ NuxeoUploadApp.on("start", function(options){
       var that = this;
       var path = $('#path_filter').val();
       var re = new RegExp('^' + path);
-      nuxeoupload.writable_folderish(client, path)
-        .then(function(folders) {
-          that.collection.reset(_.map(folders, function(x) {
-            return { label: x.replace(re, ''),
-                     value: x };
-          }));
-        });
+      if (configModel.get('nuxeoToken')) {
+        nuxeoupload.writable_folderish(client, path)
+          .then(function(folders) {
+            that.collection.reset(_.map(folders, function(x) {
+              return { label: x.replace(re, ''),
+                       value: x };
+            }));
+          });
+      }
     }
   });
   var folderView = new NuxeoFolderCollectionView(client);
@@ -317,7 +319,7 @@ NuxeoUploadApp.on("start", function(options){
   /*
    *  nx_status fires callback(true|false) with connection status
    */
-  nuxeoupload.nx_status(client, function(it_is_up) {
+  nuxeoupload.nx_status( client, Boolean(configModel.get('nuxeoToken')), function(it_is_up) {
     if (it_is_up) {
       $('#nx_status')
         .addClass('glyphicon glyphicon-link text-success')

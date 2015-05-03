@@ -12,7 +12,8 @@ var logger = require('./logs');
 /*
  * get nuxeo status and run callback(true|false)
  */
-module.exports.nx_status = function nx_status(client, cb){
+module.exports.nx_status = function nx_status(client, token, cb){
+  if (! token) { return cb(false); }
   client.connectAsync().then(function(value){
     return cb(true);
   }, function(reason){
