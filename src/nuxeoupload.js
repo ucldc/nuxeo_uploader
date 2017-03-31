@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 'use strict';
 var fs = require('fs');
 var Promise = require("bluebird");
@@ -6,42 +5,40 @@ var pfa = require("bluebird").promisifyAll;
 var path = require('path');
 var os = require('os');
 var _ = require('underscore');
-var logger = require('./logs');
+var logger = require('../src/logs');
 
 
 /*
  * get nuxeo status and run callback(true|false)
  */
-module.exports.nx_status = function nx_status(client, token, cb){
+module.exports.nx_status = function nx_status(nuxeo, token, cb){
   if (! token) { return cb(false); }
-  client.connectAsync().then(function(value){
-    return cb(true);
-  }, function(reason){
-    if (reason['entity-type'] === 'login' && reason['username']) {
+  nuxeo.connect()
+    .then(function(client){
       return cb(true);
-    } else {
+    })
+    .catch(function(error) {
       return cb(false);
-    }
-  });
+    });
 }
 
 
 /*
  * get writable locations (returns Promise)
  */
-module.exports.writable_folderish = function writable_folderish(client, path){
-  // select Organization documents a.k.a. "Project Folder" in the UI
-  var nxql = "select * from Organization WHERE ecm:path STARTSWITH '" +
-              path + "' ORDER BY ecm:path";
+module.exports.writable_folderish = function writable_folderish(nuxeo, path){
+  // select organization documents a.k.a. "project folder" in the ui
+  var nxql = "select * from Organization where ecm:path startswith '" +
+              path + "' order by ecm:path";
   console.log(nxql);
-  return new Promise(function(resolve, reject){
-    var request = client.request('/').schema(['dublincore', 'file'])
+  return nuxeo
+      .schemas('dublincore', 'file')
+      .request('/')
       .path('@search')
-      .query({
-        'query': nxql
-    });
+      .queryParams({ 'query': nxql })
+      .get();
 
-    request.execute(function(error, data, response) {
+    /* request.execute(function(error, data, response) {
       if (error) { reject(error); }
 
       var out = [];
@@ -69,7 +66,7 @@ module.exports.writable_folderish = function writable_folderish(client, path){
       });
 
     });
-  });
+  }); */
 }
 
 
@@ -98,7 +95,7 @@ module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_d
   });
   Promise.settle(uploadPromises).then(function(uploads) {
     emitter.emit('batchFinished');
-    // console.log(uploads);
+    console.log(uploads);
   });
 };
 
@@ -164,30 +161,10 @@ module.exports.get_auth_token_link = function get_auth_token_link() {
          '&permission=rw';
 }
 
+// export default nuxeoupload;
 
 /*
- * if this is running as a script
- */
-if (require.main === module) {
-  var nuxeo = require('nuxeo');
-  nuxeo = pfa(nuxeo);
-  var client = new nuxeo.Client({
-    auth: { method: 'token' },
-    headers: { 'X-Authentication-Token': process.env.NUXEO_TOKEN }
-  });
-  // module.exports.nx_status(client, function(x) { console.log(x) })
-  module.exports.writable_folderish(client).then(function(x){console.log(x);});
-
-  return;
-  var status = module.exports.upload(client,
-                        { file: process.argv[2],
-                          folder: '/default-domain/workspaces/test' },
-                        function(s){console.log(s);});
-}
-
-
-/*
-Copyright © 2015, Regents of the University of California
+Copyright © 2017, Regents of the University of California
 All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions

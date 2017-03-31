@@ -1,18 +1,13 @@
-'use strict';
-var path = require('path');
-var EventEmitter = require('events').EventEmitter;
-// var Promise = require('bluebird');
-var filesize = require('filesize');
-var url = require('url');
-// var gui = require('nw.gui');
+// var path = require('path');
+import path from 'path';
+// var EventEmitter = require('events').EventEmitter;
+import { EventEmitter } from 'events';
+import filesize from 'filesize';
+import url from 'url';
+
 var nuxeoupload = require('../src/nuxeoupload.js');
-// var logger = require('../src/logs.js');
-// nuxeo = Promise.promisifyAll(nuxeo);
 
-var Nuxeo = require('nuxeo');
-
-
-console.log('hey, running!');
+import Nuxeo from 'nuxeo';
 
 /**
  * backbone / marionette / epoxy application
@@ -97,10 +92,12 @@ NuxeoUploadApp.on("start", function(options){
   *  set up Models and Views remote folder
   */
   // set up nuxeo client connection (now that we have config)
-  var client = new Nuxeo({
+  var nuxeo = new Nuxeo({
     baseURL: configModel.nuxeoBase(),
-    auth: { method: 'token' },
-    headers: { 'X-Authentication-Token': configModel.get('nuxeoToken') },
+    auth: {
+        method: 'token',
+        token: configModel.get('nuxeoToken')
+    },
     timeout: 2995000
   });
   var NuxeoFolderCollection = Backbone.Collection.extend({
@@ -108,23 +105,23 @@ NuxeoUploadApp.on("start", function(options){
   });
   var NuxeoFolderCollectionView = Backbone.Epoxy.View.extend({
     el: "#select_nuxeo", // binding in HTML
-    initialize: function(client) {
+    initialize: function(nuxeo) {
       this.collection = new NuxeoFolderCollection();
       var that = this;
       var path = $('#path_filter').val();
       var re = new RegExp('^' + path);
       if (configModel.get('nuxeoToken')) {
-        nuxeoupload.writable_folderish(client, path)
+        return nuxeoupload.writable_folderish(nuxeo, path)
           .then(function(folders) {
-            that.collection.reset(_.map(folders, function(x) {
-              return { label: x.replace(re, ''),
-                       value: x };
+            that.collection.reset(_.map(folders.entries, function(x) {
+              return { label: x.path.replace(re, ''),
+                       value: x.path };
             }));
           });
       }
     }
   });
-  var folderView = new NuxeoFolderCollectionView(client);
+  var folderView = new NuxeoFolderCollectionView(nuxeo);
 
 
   /*
@@ -289,14 +286,13 @@ NuxeoUploadApp.on("start", function(options){
   // poor man's data binding, look up value on click
   $('#auth_token_link').on('click', function(event, baseURL) {
     // open a window that is big enough for shibboleth
-/*
-    var new_win = gui.Window.open(
+    var shell = require('electron').shell;
+    shell.openExternal(
       url.resolve(
         $('#nuxeo_server').val().replace(/\/$/, ""),
         ['nuxeo', nuxeoupload.get_auth_token_link()].join('/')
       )
     );
-*/
   });
 
 
@@ -321,11 +317,10 @@ NuxeoUploadApp.on("start", function(options){
     emitter.emit('canStartYet');
   });
 
-
   /*
    *  nx_status fires callback(true|false) with connection status
    */
-  nuxeoupload.nx_status( client, Boolean(configModel.get('nuxeoToken')), function(it_is_up) {
+  nuxeoupload.nx_status( nuxeo, Boolean(configModel.get('nuxeoToken')), function(it_is_up) {
     if (it_is_up) {
       $('#nx_status')
         .addClass('glyphicon glyphicon-link text-success')
@@ -356,7 +351,7 @@ NuxeoUploadApp.on("start", function(options){
       fileModel.set('state', 'waiting');
     });
     summaryModel.set('waiting', fileListView.collection.length);
-    nuxeoupload.runBatch(client, emitter, fileListView.collection, nuxeo_directory, concurrent);
+    nuxeoupload.runBatch(nuxeo, emitter, fileListView.collection, nuxeo_directory, concurrent);
   });
 });
 
