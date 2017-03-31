@@ -5,7 +5,6 @@ var pfa = require("bluebird").promisifyAll;
 var path = require('path');
 var os = require('os');
 var _ = require('underscore');
-var logger = require('../src/logs');
 
 
 /*
@@ -134,12 +133,10 @@ module.exports.runOne = function runOne(client, emitter, fileModel, index, nuxeo
       }, function (error, data) {
         if (error) {
           fileModel.set('state', 'error');
-          logger.error('uploadError', error);
           emitter.emit('uploadError', error, fileModel, data)
           reject(error, fileModel, data);
         } else {
           fileModel.set('state', 'success');
-          logger.info('uploadOk', data);
           emitter.emit('uploadOk', data)
           resolve(data);
         }

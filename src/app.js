@@ -15,7 +15,6 @@ import Nuxeo from 'nuxeo';
 var NuxeoUploadApp = new Backbone.Marionette.Application();
 
 NuxeoUploadApp.on("start", function(options){
-  // logger.info('application starting');
 
 
   /*
