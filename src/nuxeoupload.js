@@ -23,51 +23,24 @@ module.exports.nx_status = function nx_status(nuxeo, token, cb){
 
 
 /*
- * get writable locations (returns Promise)
+ * list children files of a remote path
  */
-module.exports.writable_folderish = function writable_folderish(nuxeo, path){
-  // select organization documents a.k.a. "project folder" in the ui
-  var nxql = "select * from Organization where ecm:path startswith '" +
-              path + "' order by ecm:path";
-  console.log(nxql);
-  return nuxeo
-      .schemas('dublincore', 'file')
-      .request('/')
-      .path('@search')
-      .queryParams({ 'query': nxql })
-      .get();
-
-    /* request.execute(function(error, data, response) {
-      if (error) { reject(error); }
-
-      var out = [];
-      out = _.map(data.entries, function(x) {
-        return x.path;
-      });
-
-      var newPagePromises = [];
-
-      for (var i = 1; i < data.pageCount; i++) {
-        var x = pfa(request.query({ currentPageIndex: i }));
-        newPagePromises.push(x.executeAsync());
-      }
-
-      Promise.all(newPagePromises).then(function(all) {
-        var first = _.map(all, function(x){
-          return x[0].entries;
-        });
-        var flat = _.flatten(first);
-        var dirs = _.map(flat, function(x){
-          return x.path;
-        });
-        out = out.concat(dirs);
-        resolve(out);
-      });
-
+module.exports.nxls = function nxls(nuxeo, path, formatter, postfix='/@children'){
+  // check path specific path
+  const check_url = 'path' + path;
+  // check the path for childern by default, but allow postfix override
+  const url = check_url.replace(/\/$/, '') + postfix;
+  nuxeo.request(url)
+    .get()
+    .bind(path)
+    .then(function(remote) {
+        formatter(remote, path);
+    })
+    .catch(function(error){
+      console.log(error.response || error);
+      throw error;
     });
-  }); */
-}
-
+};
 
 
 /*
@@ -146,7 +119,6 @@ module.exports.runOne = function runOne(client, emitter, fileModel, index, nuxeo
 }
 
 
-
 /*
  * return URL to get auth token from Nuxeo server.
  */
@@ -158,7 +130,6 @@ module.exports.get_auth_token_link = function get_auth_token_link() {
          '&permission=rw';
 }
 
-// export default nuxeoupload;
 
 /*
 Copyright © 2017, Regents of the University of California

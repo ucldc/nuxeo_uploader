@@ -14,6 +14,7 @@
   <script type="text/javascript" src="../node_modules/backbone.epoxy/backbone.epoxy.js"></script>
   <script type="text/javascript" src="../node_modules/backbone.localstorage/backbone.localStorage.js"></script>
   <script type="text/javascript" src="../node_modules/backbone.marionette/lib/backbone.marionette.js"></script>
+  <script type="text/javascript" src="../node_modules/jstree/dist/jstree.js"></script>
   <style>
     .panel-body { padding-left: 0.2em; }
     th { min-width: 100px; }
@@ -93,18 +94,6 @@
                     <button type="button" class="btn btn-default pull-right" onclick="location.reload();">Apply Changes</button>
                   </div>
                 </div>
-                <!-- div class="form-group">
-                  <label for="skip_reupload" class="col-sm-3 control-label">Skip Reupload</label>
-                  <div class="col-sm-9">
-                    <input type="checkbox" checked id="skip_reupload"> check for file name in target proejct folder and
-skip if the file name is already in nuxeo
-                  </div>
-                </div -->
-                <!-- div class="form-group">
-                  <div class="col-sm-9 col-sm-offset-3">
-                  Test Nuxeo Connection
-                  </div>
-                </div -->
               </form>
             </div>
           </div>
@@ -129,9 +118,11 @@ skip if the file name is already in nuxeo
         data-toggle="modal" data-target=".bs-example-modal-lg"
         id="select_nuxeo">
         <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp;
-        <select data-bind="options:$collection,optionsDefault:{label:'select nuxeo project folder...', value:''}"></select>
+        <select><option/></select>
       </form>
 
+      <div id="file-tree" style="overflow:auto; border:1px solid silver; min-height:100px;">
+      </div>
 
       <!-- start upload -->
       <div class="">
@@ -191,7 +182,6 @@ skip if the file name is already in nuxeo
 
 
     <!-- span class="label label-danger">Danger</span -->
-
   <script type="text/javascript" src="app.js"></script>
 </body>
 </html>

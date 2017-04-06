@@ -4,10 +4,12 @@ import path from 'path';
 import { EventEmitter } from 'events';
 import filesize from 'filesize';
 import url from 'url';
+import bluebird from 'bluebird';
 
 var nuxeoupload = require('../src/nuxeoupload.js');
 
 import Nuxeo from 'nuxeo';
+Nuxeo.promiseLibrary(bluebird);
 
 /**
  * backbone / marionette / epoxy application
@@ -102,25 +104,71 @@ NuxeoUploadApp.on("start", function(options){
   var NuxeoFolderCollection = Backbone.Collection.extend({
     model: Backbone.Model
   });
-  var NuxeoFolderCollectionView = Backbone.Epoxy.View.extend({
-    el: "#select_nuxeo", // binding in HTML
-    initialize: function(nuxeo) {
-      this.collection = new NuxeoFolderCollection();
-      var that = this;
-      var path = $('#path_filter').val();
-      var re = new RegExp('^' + path);
-      if (configModel.get('nuxeoToken')) {
-        return nuxeoupload.writable_folderish(nuxeo, path)
-          .then(function(folders) {
-            that.collection.reset(_.map(folders.entries, function(x) {
-              return { label: x.path.replace(re, ''),
-                       value: x.path };
-            }));
-          });
-      }
+
+
+  /* circa 2017
+   * set up new remote file picker
+   */
+
+  /*
+   * map Nuxeo directory entry to jstree node
+   */
+  const tree_node_format = function tree_node_format(entry) {
+    // nuxeo "entry" to jstree "node"
+    const ret = {
+      'id': entry.path,    // the jstree `id` == the remote path on Nuxeo
+      'text': entry.title, // titles are diaplayed in the tree, rather than Nuxeo paths
+    };
+    // give object types a different icon in the tree
+    if (['SampleCustomPicture',
+         'CustomFile',
+         'CustomVideo',
+         'CustomAudio'].includes(entry.type)
+    ) {
+      ret.icon = 'jstree-file';
+      ret.data = {'canUpload': true};
+    };
+    if (entry.type == 'Organization') {
+      ret.data = {'canUpload': true};
     }
+    return ret;
+  };
+
+  // set up the jstree
+  const tree = $('#file-tree').jstree({
+    'core' : {
+      'check_callback': true,  // needed to allow nodes to be created
+    },
+    'plugins': [ 'unique' ]
   });
-  var folderView = new NuxeoFolderCollectionView(nuxeo);
+
+  // set up the root node for the root path
+  nuxeoupload.nxls(nuxeo, configModel.get('pathFilter'), (remote, path) => {
+    tree
+      .jstree(true)
+      .create_node(tree, tree_node_format(remote))
+  }, '/');
+
+  // watch the tree for changes and load more nodes in from Nuxeo
+  tree.on("changed.jstree", (e, data) => {
+    data.node.data = data.node.data || {}; // http://stackoverflow.com/a/17643993/1763984
+    if (data.node.data.canUpload) {
+      // if we can upload to this folder, update the select option
+      $('#select_nuxeo select option').first().text(data.node.id);
+    }
+    // `nxlsDone` keeps track of if the children have been loaded from Nuxeo
+    if (!data.node.data.nxlsDone) {
+      const jt = $('#file-tree').jstree(true);
+      // load up the directory listing
+      nuxeoupload.nxls(nuxeo, data.node.id, (remote, path) => {
+        const parent = jt.get_node({'id': path });
+        remote.entries.forEach((entry) => {
+          jt.create_node(parent, tree_node_format(entry));
+        });
+      });
+      data.node.data.nxlsDone = true;
+    }
+  })
 
 
   /*
