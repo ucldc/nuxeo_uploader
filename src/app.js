@@ -101,10 +101,6 @@ NuxeoUploadApp.on("start", function(options){
     },
     timeout: 2995000
   });
-  var NuxeoFolderCollection = Backbone.Collection.extend({
-    model: Backbone.Model
-  });
-
 
   /* circa 2017
    * set up new remote file picker
@@ -360,7 +356,7 @@ NuxeoUploadApp.on("start", function(options){
   /*
    * select directory to upload to
    */
-  $('#select_nuxeo select').on('change', function () {
+  $('#file-tree').on('click', function(e) {
     emitter.emit('canStartYet');
   });
 
