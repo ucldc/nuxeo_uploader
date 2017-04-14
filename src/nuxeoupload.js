@@ -1,10 +1,9 @@
 'use strict';
 var fs = require('fs');
-var Promise = require("bluebird");
-var pfa = require("bluebird").promisifyAll;
 var path = require('path');
 var os = require('os');
 var _ = require('underscore');
+var Nuxeo = require('nuxeo');
 
 
 /*
@@ -47,76 +46,58 @@ module.exports.nxls = function nxls(nuxeo, path, formatter, postfix='/@children'
  * run whole batch of files
  */
 module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_directory, concurrent) {
-  // Sometimes we might want to run a limited number of tasks in parallel.
-  // http://spion.github.io/promise-nuggets/16-map-limit.html cc0
-  var queue = [];
-
-  var uploadPromises = collection.map(function(fileModel, index) {
-    // How many items must download before fetching the next?
-    // The queued, minus those running in parallel, plus one of the parallel slots.
-    var mustComplete = Math.max(0, queue.length - concurrent + 1);
-    // when enough items are complete, queue another request for an item
-    var upload = Promise.some(queue, mustComplete)
-      .then(function() {
-        return module.exports.runOne(client, emitter, fileModel, index, nuxeo_directory);
-      });
-    queue.push(upload);
-    return upload.then(function(item) {
-      return item;
+  // execute promises sequentially http://stackoverflow.com/a/24586168
+  let p = Promise.resolve();
+  collection.forEach((fileModel, index) => {
+    p = p.then(() => {
+      return module.exports.runOne(client, emitter, fileModel, index, nuxeo_directory);
     });
   });
-  Promise.settle(uploadPromises).then(function(uploads) {
-    emitter.emit('batchFinished');
-    console.log(uploads);
-  });
 };
-
 
 
 /*
  * run one file (return Promise)
  */
-module.exports.runOne = function runOne(client, emitter, fileModel, index, nuxeo_directory) {
-  var uploader = client.operation('FileManager.Import')
-    .context({ currentDocument: nuxeo_directory })
-    .uploader({
-      // convert callbacks to events
-      uploadStartedCallback: function(fileIndex, file) {
-        emitter.emit('uploadStarted', index, file)
-      },
-      uploadFinishedCallback: function(fileIndex, file, time) {
-        emitter.emit('uploadFinished', index, file, time)
-      },
-      uploadProgressUpdatedCallback: function(fileIndex, file, newProgress) {
-        emitter.emit('uploadProgressUpdated', index, file, newProgress)
-      },
-      uploadSpeedUpdatedCallback: function(fileIndex, file, speed) {
-        emitter.emit('uploadSpeedUpdated', index, file, speed)
-      }
+module.exports.runOne = function runOne(nuxeo, emitter, fileModel, index, upload_folder) {
+
+  const filename = fileModel.attributes.file.path;
+  const content = fs.createReadStream(filename);
+  const size = fileModel.attributes.file.size;
+  const name = path.basename(content.path);
+  const mimeType = fileModel.attributes.type;
+
+  const file = new Nuxeo.Blob({
+    name: name,
+    content: content,
+    size: size,
+    mimeType: mimeType
   });
 
-  var filePath = fileModel.get('path');
-  var stats = fs.statSync(filePath);
-  var rfile = fileModel.get('file');
-
-  return new Promise(function(resolve, reject){
-    uploader.uploadFile(rfile, function(fileIndex, file, timeDiff) {
-      uploader.execute({
-        path: path.basename(filePath)
-      }, function (error, data) {
-        if (error) {
-          fileModel.set('state', 'error');
-          emitter.emit('uploadError', error, fileModel, data)
-          reject(error, fileModel, data);
-        } else {
-          fileModel.set('state', 'success');
-          emitter.emit('uploadOk', data)
-          resolve(data);
-        }
-      });
+  emitter.emit('uploadStarted', index, filename);
+  emitter.emit('uploadProgressUpdated', index, file, 1)
+  return nuxeo.batchUpload()
+    .upload(file)
+    .then(function(res) {
+      emitter.emit('uploadProgressUpdated', index, file, 100)
+      return nuxeo.operation('FileManager.Import')
+        .context({ currentDocument: upload_folder })
+        .input(res.blob)
+        .execute({
+          schemas: ['file'],
+          path: file.name
+        });
+    })
+    .then(function(doc) {
+      const time = 0;
+      emitter.emit('uploadFinished', index, filename, time)
+      console.log(doc.properties['file:content']['digest']);
+    })
+    .catch(function(error) {
+      console.log(error.response || error);
+      throw error;
     });
-  });
-}
+};
 
 
 /*

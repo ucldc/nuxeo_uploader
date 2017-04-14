@@ -256,7 +256,7 @@ NuxeoUploadApp.on("start", function(options){
     // if we are ready to upload
     if ($('input[type=file]')[0].files.length > 0
         &&
-        $('#select_nuxeo select').val() !== ''
+        $('#select_nuxeo select').val() !== 'select directory below'
     ) {
     // make upload the primary action
       $('#upload').addClass('btn-primary');
@@ -283,14 +283,14 @@ NuxeoUploadApp.on("start", function(options){
     $('#upload').removeClass('btn-primary');
     new Notification("Batch finished");
   });
-  emitter.on('uploadStarted', function(fileIndex, file) {
-    fileListView.collection.findWhere({path: file.path}).set('state', 'uploading');
+  emitter.on('uploadStarted', function(fileIndex, filename) {
+    fileListView.collection.findWhere({path: filename}).set('state', 'uploading');
     var waiting = summaryModel.get('waiting');
     var uploading = summaryModel.get('uploading');
     summaryModel.set('waiting', waiting - 1)
     summaryModel.set('uploading', uploading + 1)
   });
-  emitter.on('uploadFinished', function(fileIndex, file, time) {
+  emitter.on('uploadFinished', function(fileIndex, filename, time) {
     var uploading = summaryModel.get('uploading') - 1;
     var success = summaryModel.get('success') + 1;
     var total = summaryModel.get('selected');
@@ -298,7 +298,7 @@ NuxeoUploadApp.on("start", function(options){
     var newText = success + ' / ' + total + '  ' + newProgress + '%';
     summaryModel.set('uploading', uploading);
     summaryModel.set('success', success);
-    fileListView.collection.findWhere({path: file.path}).set('state', 'success');
+    fileListView.collection.findWhere({path: filename}).set('state', 'success');
     $('#overall')
       .css('width', newProgress + '%')
       .attr('aria-valuenow', newProgress)
