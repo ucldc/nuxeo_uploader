@@ -13,11 +13,12 @@ module.exports = module.exports || {};
  */
 module.exports.nx_status = function nx_status(nuxeo, token, cb){
   if (! token) { return cb(false); }
-  nuxeo.connect()
-    .then(function(client){
+  nuxeo.repository().fetch('/')
+    .then(function(doc) {
       return cb(true);
     })
     .catch(function(error) {
+      console.log(error.response || error);
       return cb(false);
     });
 }
