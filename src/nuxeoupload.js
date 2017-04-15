@@ -6,6 +6,8 @@ var _ = require('underscore');
 var Nuxeo = require('nuxeo');
 
 
+module.exports = module.exports || {};
+
 /*
  * get nuxeo status and run callback(true|false)
  */
@@ -110,6 +112,9 @@ module.exports.get_auth_token_link = function get_auth_token_link() {
          '&deviceDescription='  + encodeURIComponent("") +
          '&permission=rw';
 }
+
+
+export default module.exports;
 
 
 /*

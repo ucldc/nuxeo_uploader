@@ -5,9 +5,7 @@ import { EventEmitter } from 'events';
 import filesize from 'filesize';
 import url from 'url';
 import bluebird from 'bluebird';
-
-var nuxeoupload = require('../src/nuxeoupload.js');
-
+import nuxeoupload from './nuxeoupload';
 import Nuxeo from 'nuxeo';
 Nuxeo.promiseLibrary(bluebird);
 
