@@ -139,11 +139,13 @@ NuxeoUploadApp.on("start", function(options){
   });
 
   // set up the root node for the root path
-  nuxeoupload.nxls(nuxeo, configModel.get('pathFilter'), (remote, path) => {
-    tree
-      .jstree(true)
-      .create_node(tree, tree_node_format(remote))
-  }, '/');
+  if (Boolean(configModel.get('nuxeoToken'))) {
+    nuxeoupload.nxls(nuxeo, configModel.get('pathFilter'), (remote, path) => {
+      tree
+        .jstree(true)
+        .create_node(tree, tree_node_format(remote))
+    }, '/');
+  }
 
   // watch the tree for changes and load more nodes in from Nuxeo
   tree.on("changed.jstree", (e, data) => {
