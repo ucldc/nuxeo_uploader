@@ -1,3 +1,5 @@
+import { app } from 'electron';
+
 export var editMenuTemplate = {
     label: 'Edit',
     submenu: [{
