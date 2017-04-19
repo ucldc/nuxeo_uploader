@@ -149,7 +149,7 @@ NuxeoUploadApp.on("start", function(options){
     data.node.data = data.node.data || {}; // http://stackoverflow.com/a/17643993/1763984
     if (data.node.data.canUpload) {
       // if we can upload to this folder, update the select option
-      $('#select_nuxeo select option').first().text(data.node.id);
+      $('#select_nuxeo input').val(data.node.id);
     }
     // `nxlsDone` keeps track of if the children have been loaded from Nuxeo
     if (!data.node.data.nxlsDone) {
@@ -255,7 +255,7 @@ NuxeoUploadApp.on("start", function(options){
     // if we are ready to upload
     if ($('input[type=file]')[0].files.length > 0
         &&
-        $('#select_nuxeo select').val() !== 'select directory below'
+        $('#select_nuxeo input').val() !== ''
     ) {
     // make upload the primary action
       $('#upload').addClass('btn-primary');
@@ -267,7 +267,7 @@ NuxeoUploadApp.on("start", function(options){
     // if selecting files is the only thing left to do
     if ($('input[type=file]')[0].files.length > 0
         &&
-        $('#select_nuxeo select').val() === ''
+        $('#select_nuxeo input').val() === ''
     ) {
     // make selecting files the primary action
       $('#select_nuxeo').addClass('btn-primary');
@@ -384,8 +384,7 @@ NuxeoUploadApp.on("start", function(options){
    *  Upload files
    */
   $('#upload').click(function () {
-    var nuxeo_directory = $('#select_nuxeo select').val();
-    var concurrent = 3;
+    var nuxeo_directory = $('#select_nuxeo input').val();
     $(this).button('loading');
     emitter.emit('upload triggered', fileListView);
     $('#select_nuxeo').addClass('disabled');
@@ -393,7 +392,7 @@ NuxeoUploadApp.on("start", function(options){
       fileModel.set('state', 'waiting');
     });
     summaryModel.set('waiting', fileListView.collection.length);
-    nuxeoupload.runBatch(nuxeo, emitter, fileListView.collection, nuxeo_directory, concurrent);
+    nuxeoupload.runBatch(nuxeo, emitter, fileListView.collection, nuxeo_directory);
   });
 });
 

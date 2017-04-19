@@ -48,7 +48,7 @@ module.exports.nxls = function nxls(nuxeo, path, formatter, postfix='/@children'
 /*
  * run whole batch of files
  */
-module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_directory, concurrent) {
+module.exports.runBatch = function runBatch(client, emitter, collection, nuxeo_directory) {
   // execute promises sequentially http://stackoverflow.com/a/24586168
   let p = Promise.resolve();
   collection.forEach((fileModel, index) => {
