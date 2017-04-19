@@ -133,7 +133,6 @@ NuxeoUploadApp.on("start", function(options){
     'core' : {
       'check_callback': true,  // needed to allow nodes to be created
     },
-    'plugins': [ 'unique' ]
   });
 
   // set up the root node for the root path
