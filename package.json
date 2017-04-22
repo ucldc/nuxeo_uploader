@@ -2,7 +2,7 @@
   "name": "nuxeouploader",
   "productName": "FileUploader",
   "description": "Starter for your Electron application",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": "Brian Tingle",
   "copyright": "© 2017, Regents of the University of California",
   "homepage": "http://example.com",
