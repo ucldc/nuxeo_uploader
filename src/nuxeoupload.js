@@ -4,7 +4,7 @@ const path = require('path');
 const os = require('os');
 const _ = require('underscore');
 const Nuxeo = require('nuxeo');
-const md5File = require('md5-file');
+import check_checksum from 'check_checksum';
 
 module.exports = module.exports || {};
 
@@ -95,19 +95,21 @@ module.exports.runOne = function runOne(nuxeo, emitter, fileModel, index, upload
       // TODO remove or fix `time`
       const time = 0;
       // make sure checksums match
-      const local_checksum = md5File.sync(filename);
+      // const local_checksum = md5File.sync(filename);
       const remote_checksum = doc.properties['file:content']['digest'];
-      if (local_checksum !== remote_checksum) {
-        fileModel.set('state', 'error');
-        emitter.emit(
-          'uploadError',
-          new Error('md5 checksum mismatch'),
-          fileModel,
-          {'local_checksum': local_checksum, 'remote_checksum': remote_checksum}
-        );
-      } else {
-        emitter.emit('uploadFinished', index, filename, time)
-      }
+      check_checksum(filename, remote_checksum)
+        .then( () => {
+          emitter.emit('uploadFinished', index, filename, time)
+        })
+        .catch( (error) => {
+          fileModel.set('state', 'error');
+          emitter.emit(
+            'uploadError',
+            error,
+            fileModel,
+            {'local_checksum': local_checksum, 'remote_checksum': remote_checksum}
+          );
+        });
     })
     .catch(function(error) {
       fileModel.set('state', 'error');
