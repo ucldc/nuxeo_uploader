@@ -92,7 +92,7 @@ NuxeoUploadApp.on("start", function(options){
   */
   // set up nuxeo client connection (now that we have config)
   var nuxeo = new Nuxeo({
-    baseURL: configModel.nuxeoBase(),
+    baseURL: `${configModel.nuxeoBase()}/site`,
     auth: {
         method: 'token',
         token: configModel.get('nuxeoToken')
