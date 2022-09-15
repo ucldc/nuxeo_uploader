@@ -39,7 +39,7 @@
     "backbone.localstorage": "^1.1.16",
     "backbone.marionette": "^2.3.2",
     "bluebird": "^3.5.0",
-    "bootstrap": "^3.3.7",
+    "bootstrap": "^3.4.1",
     "check_checksum": "^1.0.0",
     "filesize": "^3.5.6",
     "fs-jetpack": "^0.10.2",
